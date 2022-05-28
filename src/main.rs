@@ -1,6 +1,9 @@
 #[macro_use]
 extern crate diesel;
 
+mod model;
+mod schema;
+
 use actix_web::{App, HttpServer};
 
 use diesel::pg::PgConnection;
