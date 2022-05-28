@@ -1,7 +1,10 @@
+use super::db::{Creatable, Retrievable};
 use super::schema::events;
 
 use chrono::NaiveDateTime;
-use diesel::Queryable;
+use diesel::pg::PgConnection;
+use diesel::RunQueryDsl;
+use diesel::{result, Queryable};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Queryable)]
@@ -17,5 +20,13 @@ pub struct Event {
 pub struct NewEvent {
     pub description: String,
     pub odds: i32,
-    pub timestamp: NaiveDateTime,
+}
+
+impl Creatable for NewEvent {
+    type Output = Event;
+    fn create(&self, conn: &PgConnection) -> Result<Event, result::Error> {
+        diesel::insert_into(events::dsl::events)
+            .values(self)
+            .get_result(conn)
+    }
 }
