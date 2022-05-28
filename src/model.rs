@@ -1,9 +1,7 @@
 use super::schema::events;
 
 use chrono::NaiveDateTime;
-use diesel::sql_types::{Float4, Integer, Varchar};
-use diesel::{Queryable, QueryableByName};
-use diesel_derive_enum::DbEnum;
+use diesel::Queryable;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Queryable)]
