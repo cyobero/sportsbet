@@ -4,8 +4,7 @@ extern crate diesel;
 mod db;
 mod model;
 mod schema;
-
-use actix_web::{App, HttpServer};
+mod test;
 
 use diesel::pg::PgConnection;
 use diesel::r2d2::{self, ConnectionManager};

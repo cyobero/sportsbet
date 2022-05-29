@@ -1,5 +1,4 @@
 //! An API for interacting with Postgres
-
 use diesel::pg::PgConnection;
 use diesel::result;
 
@@ -20,7 +19,7 @@ where
     /// Retrieve a database object by passing in some data `T` to query. `data` can be anything that
     /// implements `Serialize`. This queries the database based on the fields and values of the
     /// passed-in `data` struct.
-    fn query(conn: &Conn, data: T) -> Result<Vec<Output>, E>;
+    fn query(conn: &Conn, data: &T) -> Result<Vec<Output>, E>;
 
     /// Retrieves all records from database.
     fn all(conn: &Conn) -> Result<Vec<Output>, E>;
