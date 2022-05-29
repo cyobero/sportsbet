@@ -17,12 +17,11 @@ pub trait Retrievable<T, Output = Self, Conn = PgConnection, E = result::Error>
 where
     T: Serialize,
 {
-    type Output;
     /// Retrieve a database object by passing in some data `T` to query. `data` can be anything that
     /// implements `Serialize`. This queries the database based on the fields and values of the
     /// passed-in `data` struct.
-    fn query(conn: &Conn, data: T) -> Result<Vec<Self::Output>, E>;
+    fn query(conn: &Conn, data: T) -> Result<Vec<Output>, E>;
 
     /// Retrieves all records from database.
-    fn all(conn: &Conn) -> Result<Vec<Self::Output>, E>;
+    fn all(conn: &Conn) -> Result<Vec<Output>, E>;
 }
