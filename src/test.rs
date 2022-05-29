@@ -50,6 +50,6 @@ mod db_tests {
         setup_environment();
         let conn = establish_connection().unwrap();
         let all = Event::all(&conn).unwrap();
-        assert_ne!(all.is_empty(), true);
+        assert_eq!(all.is_empty(), false);
     }
 }
