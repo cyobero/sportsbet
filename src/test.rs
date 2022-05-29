@@ -1,3 +1,6 @@
+use super::db::*;
+use super::model::*;
+
 use diesel::pg::PgConnection;
 use diesel::{Connection, ConnectionError};
 
@@ -11,9 +14,19 @@ fn establish_connection() -> Result<PgConnection, ConnectionError> {
     PgConnection::establish(&database_url)
 }
 
+fn setup_environment() {
+    dotenv().ok();
+    let conn = establish_connection().unwrap();
+    let ne = NewEvent {
+        description: "CHI vs OKC (O 218.5)".to_owned(),
+        odds: -110,
+    };
+    let event = ne.create(&conn);
+}
+
 #[cfg(test)]
 mod db_tests {
-    use super::establish_connection;
+    use super::{establish_connection, setup_environment};
     use crate::db::*;
     use crate::model::*;
     use crate::schema::events::{self, dsl};
@@ -30,5 +43,13 @@ mod db_tests {
         assert_eq!(event.odds, -110);
         assert_eq!(event.description, "CHI (+3) vs DET (-3)".to_owned());
         let _ = diesel::delete(dsl::events.filter(dsl::id.eq(event.id))).get_result::<Event>(&conn);
+    }
+
+    #[test]
+    fn all_events_retrieved() {
+        setup_environment();
+        let conn = establish_connection().unwrap();
+        let all = Event::all(&conn).unwrap();
+        assert_ne!(all.is_empty(), true);
     }
 }
