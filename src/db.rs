@@ -1,4 +1,8 @@
-//! An API for interacting with Postgres
+//! API for interacting with the database
+//!
+//! This module serves as the interface between the database and your app. It provides traits that
+//! allow any implementing struct to perform CRUD operations.
+
 use diesel::pg::PgConnection;
 use diesel::result;
 
@@ -23,4 +27,16 @@ where
 
     /// Retrieves all records from database.
     fn all(conn: &Conn) -> Result<Vec<Output>, E>;
+}
+
+/// Trait for deleting records
+pub trait Deletable<E = result::Error> {
+    fn delete(&self) -> Result<(), E>;
+}
+
+/// Trait for updating records
+pub trait Updatable<Output = Self, E = result::Error> {
+    /// Update the instance's corresponding db record. The updated struct is returned upon
+    /// successful method call.
+    fn update(&self) -> Result<Output, E>;
 }

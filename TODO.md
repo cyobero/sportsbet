@@ -1,1 +1,3 @@
 - Implement `Default` for `Event`
+- Create `Deletable` trait
+- Create `Updatable` trait
