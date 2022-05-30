@@ -1,0 +1,2 @@
+- Create `Deletable` trait
+- Create `Updatable` trait
