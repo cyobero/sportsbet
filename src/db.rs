@@ -22,7 +22,7 @@ where
 {
     /// Retrieve a database object by passing in some data `T` to query. `data` can be anything that
     /// implements `Serialize`. This queries the database based on the fields and values of the
-    /// passed-in `data` struct.
+    /// passed-in `data` struct reference.
     fn query(conn: &Conn, data: &T) -> Result<Vec<Output>, E>;
 
     /// Retrieves all records from database.
