@@ -1,3 +1,3 @@
-- Implement `Default` for `Event`
-- Create `Deletable` trait
-- Create `Updatable` trait
+- ~~Implement `Default` for `EventQuery`~~ (2022-05-30)
+- ~~Define `Updatable` and `Deletable` traits~~ (2022-05-30)
+- Implement `Deletable` and `Updatable` for `Event`
