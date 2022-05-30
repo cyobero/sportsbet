@@ -52,4 +52,53 @@ mod db_tests {
         let all = Event::all(&conn).unwrap();
         assert_eq!(all.is_empty(), false);
     }
+
+    #[test]
+    fn query_retrieves_correct_results() {
+        let conn = establish_connection().unwrap();
+        let data = vec![
+            NewEvent {
+                description: "FOO vs BAR (-6.5)".to_owned(),
+                odds: -105,
+            },
+            NewEvent {
+                description: "FOO (+6.5) vs BAR".to_owned(),
+                odds: -110,
+            },
+            NewEvent {
+                description: "CHI vs BOS U 51.5".to_owned(),
+                odds: -110,
+            },
+        ];
+
+        for ne in data {
+            ne.create(&conn).unwrap();
+        }
+
+        let res = Event::query(
+            &conn,
+            &EventQuery {
+                id: None,
+                odds: Some(-110),
+            },
+        )
+        .unwrap();
+
+        for r in res {
+            assert_eq!(r.odds, -110);
+        }
+    }
+
+    #[test]
+    fn query_returns_zero_results() {
+        let conn = establish_connection().unwrap();
+        let res = Event::query(
+            &conn,
+            &EventQuery {
+                id: None,
+                odds: Some(1_000_000),
+            },
+        );
+        assert_eq!(res.unwrap().len(), 0);
+    }
 }
