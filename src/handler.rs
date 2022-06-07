@@ -4,8 +4,6 @@ use super::model::Event;
 use super::DbPool;
 
 use actix_web::{get, web, HttpResponse, Responder};
-use diesel::{QueryDsl, RunQueryDsl};
-use serde::{Deserialize, Serialize};
 use serde_json::json;
 
 /// Request handler for retrieving all Events
