@@ -1,4 +1,4 @@
-use super::db::{Creatable, Retrievable};
+use super::db::{Creatable, Deletable, Retrievable};
 use super::schema::events::{self, dsl};
 
 use chrono::NaiveDateTime;
@@ -6,7 +6,7 @@ use diesel::pg::PgConnection;
 use diesel::{result, ExpressionMethods, Insertable, QueryDsl, Queryable, RunQueryDsl};
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, Deserialize, Queryable)]
+#[derive(Clone, Debug, Serialize, Deserialize, Queryable)]
 pub struct Event {
     pub id: i32,
     pub description: String,
@@ -25,6 +25,12 @@ pub struct NewEvent {
 pub struct EventQuery {
     pub id: Option<i32>,
     pub odds: Option<i32>,
+}
+
+impl Deletable for Event {
+    fn delete(&self, conn: &PgConnection) -> Result<Event, result::Error> {
+        diesel::delete(dsl::events.filter(dsl::id.eq(&self.id))).get_result(conn)
+    }
 }
 
 impl Retrievable<EventQuery> for Event {

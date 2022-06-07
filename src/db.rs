@@ -2,7 +2,7 @@
 //!
 //! This module serves as the interface between the database and your app. It provides traits that
 //! allow any implementing struct to perform CRUD operations.
-
+use super::model::Event;
 use diesel::pg::PgConnection;
 use diesel::result;
 
@@ -30,8 +30,8 @@ where
 }
 
 /// Trait for deleting records
-pub trait Deletable<E = result::Error> {
-    fn delete(&self) -> Result<(), E>;
+pub trait Deletable<Output = Self, Conn = PgConnection, E = result::Error> {
+    fn delete(&self, conn: &PgConnection) -> Result<Event, E>;
 }
 
 /// Trait for updating records
