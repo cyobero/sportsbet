@@ -7,9 +7,10 @@ pub mod model;
 pub mod schema;
 pub mod test;
 
+use handlebars::Handlebars;
 use handler::*;
 
-use actix_web::{App, HttpServer};
+use actix_web::{web, App, HttpServer};
 
 use diesel::pg::PgConnection;
 use diesel::r2d2::{self, ConnectionManager};
@@ -29,11 +30,23 @@ async fn main() -> std::io::Result<()> {
         .build(manager)
         .expect("Could not create pool.");
 
+    let mut handlebars = Handlebars::new();
+    handlebars
+        .register_templates_directory(".html", "./static/templates")
+        .unwrap();
+    let handlebars_ref = web::Data::new(handlebars);
+
     let addrress = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), 8305);
     println!("🚀 ⛽🌬️🌬️ Serving at {:?}", addrress);
 
-    HttpServer::new(move || App::new().data(pool.clone()).service(get_events))
-        .bind(addrress)?
-        .run()
-        .await
+    HttpServer::new(move || {
+        App::new()
+            .app_data(handlebars_ref.clone())
+            .data(pool.clone())
+            .service(get_events)
+            .service(event_form)
+    })
+    .bind(addrress)?
+    .run()
+    .await
 }
