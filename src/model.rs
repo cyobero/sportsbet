@@ -6,7 +6,7 @@ use diesel::pg::PgConnection;
 use diesel::{result, ExpressionMethods, Insertable, QueryDsl, Queryable, RunQueryDsl};
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, Deserialize, Queryable)]
+#[derive(Clone, Debug, Serialize, Deserialize, Queryable)]
 pub struct Event {
     pub id: i32,
     pub description: String,

@@ -8,18 +8,14 @@ use diesel::{QueryDsl, RunQueryDsl};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-struct JSONResponse<T, U = i32>(T, U)
-where
-    T: Serialize,
-    U: Serialize;
-
 /// Request handler for retrieving all Events
-#[get("/events/v1")]
+#[get("/v1/events")]
 async fn get_events(pool: web::Data<DbPool>) -> impl Responder {
     let conn = pool.get().expect("Could not establish connection");
     web::block(move || Event::all(&conn))
         .await
         .map(|res| HttpResponse::Ok().json(json!({"status": 200, "data": res })))
-        .map_err(|e| HttpResponse::InternalServerError().json(JSONResponse(404, e.to_string())))
+        .map_err(|e| {
+            HttpResponse::InternalServerError().json(json!({"status": 404, "data": e.to_string() }))
+        })
 }
