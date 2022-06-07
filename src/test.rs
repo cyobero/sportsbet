@@ -101,4 +101,25 @@ mod db_tests {
         );
         assert_eq!(res.unwrap().len(), 0);
     }
+
+    #[test]
+    fn record_deleted() {
+        let conn = establish_connection().unwrap();
+        let new = NewEvent {
+            description: "test".to_string(),
+            odds: 110,
+        };
+        let event = new.create(&conn).unwrap();
+        let deleted = event.delete(&conn);
+        assert!(deleted.is_ok());
+        let res = Event::query(
+            &conn,
+            &EventQuery {
+                id: Some(event.id),
+                odds: None,
+            },
+        )
+        .unwrap();
+        assert_eq!(res.len(), 0);
+    }
 }

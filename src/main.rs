@@ -1,10 +1,10 @@
 #[macro_use]
 extern crate diesel;
 
-mod db;
-mod model;
-mod schema;
-mod test;
+pub mod db;
+pub mod model;
+pub mod schema;
+pub mod test;
 
 use diesel::pg::PgConnection;
 use diesel::r2d2::{self, ConnectionManager};
