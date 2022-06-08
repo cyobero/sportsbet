@@ -4,19 +4,19 @@
 //! allow any implementing struct to perform CRUD operations.
 use super::model::Event;
 use diesel::pg::PgConnection;
-use diesel::result;
+use diesel::result::Error as DieselError;
 
 use serde::Serialize;
 
 /// Trait for creating a new database record
-pub trait Creatable<E = result::Error> {
+pub trait Creatable<E = DieselError> {
     type Output;
     /// Create new database record from an instance.
     fn create(&self, conn: &PgConnection) -> Result<Self::Output, E>;
 }
 
 /// Trait for retrieving records from database
-pub trait Retrievable<T, Output = Self, Conn = PgConnection, E = result::Error>
+pub trait Retrievable<T, Output = Self, Conn = PgConnection, E = DieselError>
 where
     T: Serialize,
 {
@@ -30,12 +30,12 @@ where
 }
 
 /// Trait for deleting records
-pub trait Deletable<Output = Self, Conn = PgConnection, E = result::Error> {
+pub trait Deletable<Output = Self, Conn = PgConnection, E = DieselError> {
     fn delete(&self, conn: &PgConnection) -> Result<Event, E>;
 }
 
 /// Trait for updating records
-pub trait Updatable<Output = Self, E = result::Error> {
+pub trait Updatable<Output = Self, E = DieselError> {
     /// Update the instance's corresponding db record. The updated struct is returned upon
     /// successful method call.
     fn update(&self) -> Result<Output, E>;
