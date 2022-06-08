@@ -5,7 +5,7 @@ use diesel::pg::PgConnection;
 use diesel::{Connection, ConnectionError};
 
 use dotenv::dotenv;
-
+use reqwest;
 use std::env;
 
 fn establish_connection() -> Result<PgConnection, ConnectionError> {
@@ -86,6 +86,7 @@ mod db_tests {
 
         for r in res {
             assert_eq!(r.odds, -110);
+            r.delete(&conn);
         }
     }
 

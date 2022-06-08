@@ -13,7 +13,7 @@ async fn get_events(pool: web::Data<DbPool>) -> impl Responder {
     let conn = pool.get().expect("Could not establish connection");
     web::block(move || Event::all(&conn))
         .await
-        .map(|res| HttpResponse::Ok().json(json!({"status": 200, "data": res })))
+        .map(|dta| web::Json(dta))
         .map_err(|e| {
             HttpResponse::InternalServerError().json(json!({"status": 404, "data": e.to_string() }))
         })
