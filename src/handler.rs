@@ -1,9 +1,9 @@
 //! Module for proccessing HTTP requests
-use super::db::Retrievable;
-use super::model::Event;
+use super::db::{Creatable, Retrievable};
+use super::model::{Event, NewEvent};
 use super::DbPool;
 
-use actix_web::{get, web, HttpRequest, HttpResponse, Responder};
+use actix_web::{get, post, web, HttpRequest, HttpResponse, Responder};
 use handlebars::Handlebars;
 use serde_json::json;
 
@@ -24,4 +24,32 @@ async fn get_events(pool: web::Data<DbPool>) -> impl Responder {
 async fn event_form(hb: web::Data<Handlebars<'_>>, _req: HttpRequest) -> impl Responder {
     let body = hb.render("event_form", &{}).unwrap();
     HttpResponse::Ok().body(body)
+}
+
+/// Request handler for posting event forms.
+#[post("/events/form")]
+async fn post_event(
+    pool: web::Data<DbPool>,
+    hb: web::Data<Handlebars<'_>>,
+    form: web::Form<NewEvent>,
+) -> impl Responder {
+    let conn = pool.get().expect("Could not establish connection.");
+    let data = form.0.create(&conn);
+    match data {
+        Ok(_) => {
+            let body = hb
+                .render(
+                    "event_form",
+                    &json!({"message": "new event succesfully created!"}),
+                )
+                .unwrap();
+            HttpResponse::Ok().body(body)
+        }
+        Err(e) => {
+            let body = hb
+                .render("event_form", &json!({"message": e.to_string(), }))
+                .unwrap();
+            HttpResponse::InternalServerError().body(body)
+        }
+    }
 }

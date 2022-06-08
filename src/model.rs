@@ -14,7 +14,7 @@ pub struct Event {
     pub timestamp: NaiveDateTime,
 }
 
-#[derive(Clone, Debug, Serialize, Insertable)]
+#[derive(Clone, Debug, Deserialize, Serialize, Insertable)]
 #[table_name = "events"]
 pub struct NewEvent {
     pub description: String,

@@ -45,6 +45,7 @@ async fn main() -> std::io::Result<()> {
             .data(pool.clone())
             .service(get_events)
             .service(event_form)
+            .service(post_event)
     })
     .bind(addrress)?
     .run()
