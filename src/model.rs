@@ -62,7 +62,10 @@ impl Retrievable<EventQuery> for Event {
     }
 
     fn all(conn: &PgConnection) -> Result<Vec<Event>, result::Error> {
-        dsl::events.limit(100).load(conn)
+        dsl::events
+            .limit(100)
+            .order_by(dsl::timestamp.desc())
+            .load(conn)
     }
 }
 
