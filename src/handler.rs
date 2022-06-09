@@ -7,6 +7,14 @@ use actix_web::{get, post, web, HttpRequest, HttpResponse, Responder};
 use handlebars::Handlebars;
 use serde_json::json;
 
+/// Request handler for creating new game form
+#[get("/games/form")]
+async fn games_form(hb: web::Data<Handlebars<'_>>, _req: HttpRequest) -> impl Responder {
+    let teams = vec!["BOS", "GSW"];
+    let body = hb.render("games_form", &json!({ "teams": teams })).unwrap();
+    HttpResponse::Ok().body(body)
+}
+
 /// Request handler for retrieving all Events
 #[get("/v1/events")]
 async fn get_events(pool: web::Data<DbPool>) -> impl Responder {
