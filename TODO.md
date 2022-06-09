@@ -1,3 +1,4 @@
+- Create a global NBA team dict to look up a team's 3-letter abbreviation (or vice versa)
 - ~~Implement `Default` for `EventQuery`~~ (2022-05-30)
 - ~~Define `Updatable` and `Deletable` traits~~ (2022-05-30)
 - Implement `Deletable` and `Updatable` for `Event`

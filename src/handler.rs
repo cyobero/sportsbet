@@ -3,6 +3,8 @@ use super::db::{Creatable, Retrievable};
 use super::model::{Event, NewEvent};
 use super::DbPool;
 
+use super::NBA_TEAMS;
+
 use actix_web::{get, post, web, HttpRequest, HttpResponse, Responder};
 use handlebars::Handlebars;
 use serde_json::json;
@@ -10,8 +12,9 @@ use serde_json::json;
 /// Request handler for creating new game form
 #[get("/games/form")]
 async fn games_form(hb: web::Data<Handlebars<'_>>, _req: HttpRequest) -> impl Responder {
-    let teams = vec![("BOS", "Boston Celtics"), ("GSW", "Golden State Warriors")];
-    let body = hb.render("games_form", &json!({ "teams": teams })).unwrap();
+    let body = hb
+        .render("games_form", &json!({ "teams": NBA_TEAMS }))
+        .unwrap();
     HttpResponse::Ok().body(body)
 }
 

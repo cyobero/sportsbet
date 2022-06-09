@@ -9,18 +9,22 @@
         <form method="post">
             <label for="home">Home Team:</label>
             <select id="home" name="home">
+
+                <option disable selected value> -- </option>
                 {{#each teams}}
-                <option >{{this}}</option>
+                <option value={{this.0}}>{{this.1 }}</option>
                 {{/each}}
             </select>
             <label for="away" name="away">Away Team:</label>
             <select id="away" name="away">
-                {{#each teams}}
-    <option>{{this}}</option>
 
+      <option disable selected value> -- </option>
+                {{#each teams}}
+                <option value={{this.0}}>{{this.1}}</option>
                 {{/each}}
             </select>
         </select>
+        <input type="submit" value="Create Game"></input>
         </form>
         {{#if message}}
         <p><strong>{{ message }}</strong></p>
