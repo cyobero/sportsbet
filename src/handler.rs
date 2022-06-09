@@ -10,7 +10,7 @@ use serde_json::json;
 /// Request handler for creating new game form
 #[get("/games/form")]
 async fn games_form(hb: web::Data<Handlebars<'_>>, _req: HttpRequest) -> impl Responder {
-    let teams = vec!["BOS", "GSW"];
+    let teams = vec![("BOS", "Boston Celtics"), ("GSW", "Golden State Warriors")];
     let body = hb.render("games_form", &json!({ "teams": teams })).unwrap();
     HttpResponse::Ok().body(body)
 }
@@ -40,6 +40,7 @@ async fn post_event(
     pool: web::Data<DbPool>,
     hb: web::Data<Handlebars<'_>>,
     form: web::Form<NewEvent>,
+    _req: HttpRequest,
 ) -> impl Responder {
     let conn = pool.get().expect("Could not establish connection.");
     let data = form.0.create(&conn);
