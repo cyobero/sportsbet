@@ -16,6 +16,7 @@ mod db_tests {
     use crate::db::*;
     use crate::model::*;
     use crate::schema::events::{self, dsl};
+    use chrono::naive::{NaiveDate, NaiveDateTime};
     use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl};
 
     #[test]
@@ -107,5 +108,19 @@ mod db_tests {
         )
         .unwrap();
         assert_eq!(res.len(), 0);
+    }
+
+    #[test]
+    fn game_created() {
+        use crate::schema::games::dsl::*;
+        let conn = establish_connection().unwrap();
+        let new = NewGame {
+            home: "BOS".to_string(),
+            away: "GSW".to_string(),
+            start: NaiveDate::from_ymd(2022, 06, 08).and_hms(17, 30, 0),
+        };
+        let game = new.create(&conn).unwrap();
+        assert_eq!(game.away, "GSW".to_string());
+        let _ = diesel::delete(games.find(game.id)).get_result::<Game>(&conn);
     }
 }
