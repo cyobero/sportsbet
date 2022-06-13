@@ -11,6 +11,18 @@ fn establish_connection() -> Result<PgConnection, ConnectionError> {
 }
 
 #[cfg(test)]
+mod handler_tests {
+    use crate::db::*;
+    use crate::model::*;
+    use reqwest;
+
+    //    #[test]
+    //fn get_events_handler() {
+    //let resp = reqwest::get("http://localhost:8305/v1/events")
+    //    }
+}
+
+#[cfg(test)]
 mod db_tests {
     use super::establish_connection;
     use crate::db::*;
