@@ -2,6 +2,7 @@
 extern crate diesel;
 
 pub mod db;
+pub mod form;
 pub mod handler;
 pub mod model;
 pub mod schema;
@@ -10,7 +11,7 @@ pub mod test;
 use handlebars::Handlebars;
 use handler::*;
 
-use actix_web::{get, web, App, HttpServer};
+use actix_web::{web, App, HttpServer};
 
 use diesel::pg::PgConnection;
 use diesel::r2d2::{self, ConnectionManager};
@@ -80,6 +81,7 @@ async fn main() -> std::io::Result<()> {
             .service(event_form)
             .service(post_event)
             .service(games_form)
+            .service(post_game)
     })
     .bind(addrress)?
     .run()

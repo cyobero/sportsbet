@@ -1,19 +1,101 @@
 //! Module for proccessing HTTP requests
 use super::db::{Creatable, Retrievable};
-use super::model::{Event, NewEvent};
+use super::model::{Event, NewEvent, NewGame};
+use super::schema::games::dsl::games;
 use super::DbPool;
 
 use super::NBA_TEAMS;
-
 use actix_web::{get, post, web, HttpRequest, HttpResponse, Responder};
+use chrono::{Local, NaiveDate, NaiveDateTime};
+use diesel::result::Error as DieselError;
 use handlebars::Handlebars;
+use serde::{Deserialize, Serialize};
 use serde_json::json;
+use substring::Substring;
+
+#[derive(Debug, Deserialize, Serialize)]
+struct GameForm {
+    home: String,
+    away: String,
+    start: String,
+}
+
+impl GameForm {
+    pub fn new() -> Self {
+        GameForm {
+            home: "HOME".to_owned(),
+            away: "AWAY".to_owned(),
+            start: "1987-10-03T17:00:00".to_owned(),
+        }
+    }
+
+    // Utility function to convert `start` and return a NaiveDateTime type instead of a String
+    pub fn start_to_naive(&self) -> NaiveDateTime {
+        let start = self.start.as_bytes();
+        let (yr, mo, dy, hr, mn) = (
+            String::from_utf8(start[0..4].to_vec())
+                .unwrap()
+                .parse::<i32>()
+                .unwrap(),
+            String::from_utf8(start[5..7].to_vec())
+                .unwrap()
+                .parse::<u32>()
+                .unwrap(),
+            String::from_utf8(start[8..10].to_vec())
+                .unwrap()
+                .parse::<u32>()
+                .unwrap(),
+            String::from_utf8(start[11..13].to_vec())
+                .unwrap()
+                .parse::<u32>()
+                .unwrap(),
+            String::from_utf8(start[14..16].to_vec())
+                .unwrap()
+                .parse::<u32>()
+                .unwrap(),
+        );
+
+        NaiveDate::from_ymd(yr, mo, dy).and_hms(hr, mn, 0)
+    }
+}
+
+/// Request handler for posting a new Game from a form
+#[post("/games/form")]
+async fn post_game(
+    pool: web::Data<DbPool>,
+    hb: web::Data<Handlebars<'_>>,
+    form: web::Form<GameForm>,
+) -> impl Responder {
+    let conn = pool.get().expect("Could not establish connection.");
+    let new = NewGame {
+        home: form.home.to_owned(),
+        away: form.away.to_owned(),
+        start: form.start_to_naive(),
+    };
+    web::block(move || new.create(&conn))
+        .await
+        .map(|_| {
+            let body = hb
+                .render("success", &json!({"message": "New game created"}))
+                .unwrap();
+            HttpResponse::Ok().body(body)
+        })
+        .map_err(|e| {
+            let body = hb
+                .render("game_form", &json!({"message": e.to_string() }))
+                .unwrap();
+            HttpResponse::InternalServerError().body(body)
+        })
+}
 
 /// Request handler for retrieving the form to create a new Game
 #[get("/games/form")]
 async fn games_form(hb: web::Data<Handlebars<'_>>, _req: HttpRequest) -> impl Responder {
     let body = hb
-        .render("games_form", &json!({ "teams": NBA_TEAMS }))
+        .render(
+            "game_form",
+            &json!({ "teams": NBA_TEAMS, "dt": Local::now().naive_utc() }),
+        )
         .unwrap();
     HttpResponse::Ok().body(body)
 }
