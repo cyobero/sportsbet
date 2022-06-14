@@ -1,17 +1,14 @@
 //! Module for proccessing HTTP requests
 use super::db::{Creatable, Retrievable};
 use super::model::{Event, NewEvent, NewGame};
-use super::schema::games::dsl::games;
 use super::DbPool;
 
 use super::NBA_TEAMS;
 use actix_web::{get, post, web, HttpRequest, HttpResponse, Responder};
 use chrono::{Local, NaiveDate, NaiveDateTime};
-use diesel::result::Error as DieselError;
 use handlebars::Handlebars;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use substring::Substring;
 
 #[derive(Debug, Deserialize, Serialize)]
 struct GameForm {
@@ -29,7 +26,7 @@ impl GameForm {
         }
     }
 
-    // Utility function to convert `start` and return a NaiveDateTime type instead of a String
+    // Converts `start` member from `String` and returns a `NaiveDateTime` object
     pub fn start_to_naive(&self) -> NaiveDateTime {
         let start = self.start.as_bytes();
         let (yr, mo, dy, hr, mn) = (
