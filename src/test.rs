@@ -135,4 +135,11 @@ mod db_tests {
         assert_eq!(game.away, "GSW".to_string());
         let _ = diesel::delete(games.find(game.id)).get_result::<Game>(&conn);
     }
+
+    #[test]
+    fn all_games_retrieved() {
+        let conn = establish_connection().unwrap();
+        let games = Game::all(&conn).unwrap();
+        assert_ne!(games.len(), 0);
+    }
 }

@@ -1,3 +1,5 @@
+//! This module contains structs for handling form input.
+
 use chrono::{NaiveDate, NaiveDateTime};
 use serde::{Deserialize, Serialize};
 
@@ -17,7 +19,7 @@ impl GameForm {
         }
     }
 
-    /// Converts `start` member from `String` and returns a `NaiveDateTime` object
+    /// Return a NaiveDateTime made from `GameForm`'s `start` String.
     pub fn start_to_naive(&self) -> NaiveDateTime {
         let start = self.start.as_bytes();
         let (yr, mo, dy, hr, mn) = (

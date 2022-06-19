@@ -1,8 +1,9 @@
 use super::db::{Creatable, Deletable, Retrievable};
+use super::form::GameForm;
 use super::schema::events::{self, dsl as events_dsl};
 use super::schema::games::{self, dsl as games_dsl};
 
-use chrono::NaiveDateTime;
+use chrono::{NaiveDateTime, Utc};
 use diesel::pg::PgConnection;
 use diesel::result::Error as DieselError;
 use diesel::{ExpressionMethods, Insertable, QueryDsl, Queryable, RunQueryDsl};
@@ -44,6 +45,45 @@ pub struct NewEvent {
 pub struct EventQuery {
     pub id: Option<i32>,
     pub odds: Option<i32>,
+}
+
+#[derive(Clone, Copy, Serialize)]
+pub struct GameQuery {
+    pub id: Option<i32>,
+    pub year: Option<i32>,
+    pub month: Option<i32>,
+    pub day: Option<i32>,
+}
+
+impl Default for GameQuery {
+    fn default() -> Self {
+        GameQuery {
+            id: None,
+            year: None,
+            month: None,
+            day: None,
+        }
+    }
+}
+
+impl Retrievable<GameQuery> for Game {
+    fn query(conn: &PgConnection, data: &GameQuery) -> Result<Vec<Game>, DieselError> {
+        match data {
+            GameQuery {
+                id: Some(i),
+                year: None,
+                month: None,
+                day: None,
+            } => games_dsl::games
+                .filter(games_dsl::id.eq(i))
+                .get_results(conn),
+            _ => games_dsl::games.load(conn),
+        }
+    }
+
+    fn all(conn: &PgConnection) -> Result<Vec<Game>, DieselError> {
+        games_dsl::games.load(conn)
+    }
 }
 
 impl Creatable for NewGame {
