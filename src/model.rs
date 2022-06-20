@@ -11,15 +11,17 @@ use diesel::{sql_query, ExpressionMethods, Insertable, QueryDsl, Queryable, RunQ
 use diesel_derive_enum::DbEnum;
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Copy, Debug, DbEnum, Deserialize, Serialize)]
+#[derive(Clone, Copy, Debug, DbEnum, Deserialize, Serialize, PartialEq)]
 pub enum Role {
     Bookie,
     Punter,
 }
 
-#[derive(Clone, Debug, Queryable, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, Queryable)]
 pub struct User {
+    pub id: i32,
     pub username: String,
+    pub password: String,
     pub role: Role,
 }
 
@@ -89,6 +91,15 @@ impl Default for GameQuery {
             month: None,
             day: None,
         }
+    }
+}
+
+impl Creatable for NewUser {
+    type Output = User;
+    fn create(&self, conn: &PgConnection) -> Result<User, DieselError> {
+        diesel::insert_into(users_dsl::users)
+            .values(self)
+            .get_result(conn)
     }
 }
 

@@ -142,4 +142,17 @@ mod db_tests {
         let games = Game::all(&conn).unwrap();
         assert_ne!(games.len(), 0);
     }
+
+    #[test]
+    fn user_created() {
+        use crate::model::Role::*;
+        let usr = NewUser {
+            username: "test-user".to_string(),
+            password: "password".to_string(),
+            role: Bookie,
+        };
+        let conn = establish_connection().unwrap();
+        let new = usr.create(&conn).unwrap();
+        assert_eq!(new.role, Bookie);
+    }
 }
