@@ -1,4 +1,7 @@
 table! {
+    use diesel::sql_types::*;
+    use crate::exports::*;
+
     events (id, timestamp) {
         id -> Int4,
         description -> Varchar,
@@ -9,6 +12,9 @@ table! {
 }
 
 table! {
+    use diesel::sql_types::*;
+    use crate::exports::*;
+
     game_results (id) {
         id -> Int4,
         home -> Int4,
@@ -18,11 +24,26 @@ table! {
 }
 
 table! {
+    use diesel::sql_types::*;
+    use crate::exports::*;
+
     games (id) {
         id -> Int4,
         home -> Varchar,
         away -> Varchar,
         start -> Timestamp,
+    }
+}
+
+table! {
+    use diesel::sql_types::*;
+    use crate::exports::*;
+
+    users (id) {
+        id -> Int4,
+        username -> Varchar,
+        password -> Varchar,
+        role -> Role,
     }
 }
 
@@ -33,4 +54,5 @@ allow_tables_to_appear_in_same_query!(
     events,
     game_results,
     games,
+    users,
 );

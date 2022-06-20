@@ -2,12 +2,19 @@ use super::db::{Creatable, Deletable, Retrievable};
 use super::schema::events::{self, dsl as events_dsl};
 use super::schema::games::{self, dsl as games_dsl};
 
-use chrono::{NaiveDateTime, Utc};
+use chrono::NaiveDateTime;
 use diesel::pg::PgConnection;
 use diesel::result::Error as DieselError;
 use diesel::sql_types::{Integer, Timestamp, Varchar};
 use diesel::{sql_query, ExpressionMethods, Insertable, QueryDsl, Queryable, RunQueryDsl};
+use diesel_derive_enum::DbEnum;
 use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Copy, Debug, DbEnum, Deserialize, Serialize)]
+pub enum Role {
+    Bookie,
+    Punter,
+}
 
 #[derive(Clone, Debug, Deserialize, Serialize, Queryable, QueryableByName)]
 pub struct Game {

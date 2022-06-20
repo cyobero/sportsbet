@@ -20,6 +20,9 @@ use dotenv::dotenv;
 use std::env;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
+pub mod exports {
+    pub use crate::model::RoleMapping as Role;
+}
 pub type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
 static NBA_TEAMS: [(&'static str, &'static str); 30] = [
