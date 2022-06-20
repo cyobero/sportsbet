@@ -1,6 +1,7 @@
 use super::db::{Creatable, Deletable, Retrievable};
 use super::schema::events::{self, dsl as events_dsl};
 use super::schema::games::{self, dsl as games_dsl};
+use super::schema::users::{self, dsl as users_dsl};
 
 use chrono::NaiveDateTime;
 use diesel::pg::PgConnection;
@@ -14,6 +15,20 @@ use serde::{Deserialize, Serialize};
 pub enum Role {
     Bookie,
     Punter,
+}
+
+#[derive(Clone, Debug, Queryable, Serialize, Deserialize)]
+pub struct User {
+    pub username: String,
+    pub role: Role,
+}
+
+#[derive(Clone, Debug, Insertable)]
+#[table_name = "users"]
+pub struct NewUser {
+    pub username: String,
+    pub password: String,
+    pub role: Role,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, Queryable, QueryableByName)]
