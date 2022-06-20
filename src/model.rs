@@ -1,19 +1,23 @@
 use super::db::{Creatable, Deletable, Retrievable};
-use super::form::GameForm;
 use super::schema::events::{self, dsl as events_dsl};
 use super::schema::games::{self, dsl as games_dsl};
 
 use chrono::{NaiveDateTime, Utc};
 use diesel::pg::PgConnection;
 use diesel::result::Error as DieselError;
-use diesel::{ExpressionMethods, Insertable, QueryDsl, Queryable, RunQueryDsl};
+use diesel::sql_types::{Integer, Timestamp, Varchar};
+use diesel::{sql_query, ExpressionMethods, Insertable, QueryDsl, Queryable, RunQueryDsl};
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, Deserialize, Serialize, Queryable)]
+#[derive(Clone, Debug, Deserialize, Serialize, Queryable, QueryableByName)]
 pub struct Game {
+    #[sql_type = "Integer"]
     pub id: i32,
+    #[sql_type = "Varchar"]
     pub home: String,
+    #[sql_type = "Varchar"]
     pub away: String,
+    #[sql_type = "Timestamp"]
     pub start: NaiveDateTime,
 }
 
@@ -68,21 +72,13 @@ impl Default for GameQuery {
 
 impl Retrievable<GameQuery> for Game {
     fn query(conn: &PgConnection, data: &GameQuery) -> Result<Vec<Game>, DieselError> {
-        match data {
-            GameQuery {
-                id: Some(i),
-                year: None,
-                month: None,
-                day: None,
-            } => games_dsl::games
-                .filter(games_dsl::id.eq(i))
-                .get_results(conn),
-            _ => games_dsl::games.load(conn),
-        }
+        unimplemented!()
     }
 
+    /// Retrieves all games that don't have a result (i.e. don't have a final score)
     fn all(conn: &PgConnection) -> Result<Vec<Game>, DieselError> {
-        games_dsl::games.load(conn)
+        let _stmt = "SELECT * FROM games WHERE games.id NOT IN (SELECT game_id FROM game_results)";
+        sql_query(_stmt).load(conn)
     }
 }
 

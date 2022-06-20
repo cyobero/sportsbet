@@ -1,15 +1,36 @@
 //! Module for proccessing HTTP requests
 use super::db::{Creatable, Retrievable};
 use super::form::GameForm;
-use super::model::{Event, NewEvent, NewGame};
+use super::model::{Event, Game, NewEvent, NewGame};
 use super::DbPool;
 
 use super::NBA_TEAMS;
 use actix_web::{get, post, web, HttpRequest, HttpResponse, Responder};
-use chrono::{Local, NaiveDate, NaiveDateTime};
+use chrono::Local;
 use handlebars::Handlebars;
-use serde::{Deserialize, Serialize};
 use serde_json::json;
+
+/// Request handler for getting all on-going games
+#[get("/games")]
+async fn get_games(
+    pool: web::Data<DbPool>,
+    hb: web::Data<Handlebars<'_>>,
+    _req: HttpRequest,
+) -> impl Responder {
+    let conn = pool.get().expect("Could not get connection.");
+    web::block(move || Game::all(&conn))
+        .await
+        .map(|games| {
+            let body = hb.render("games", &json!({ "games": games })).unwrap();
+            HttpResponse::Ok().body(body)
+        })
+        .map_err(|e| {
+            let body = hb
+                .render("games", &json!({"message": e.to_string() }))
+                .unwrap();
+            HttpResponse::Ok().body(body)
+        })
+}
 
 /// Request handler for posting a new Game from a form
 #[post("/games/form")]

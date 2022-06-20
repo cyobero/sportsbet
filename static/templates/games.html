@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Games</title>
+    </head>
+    <body>
+        {{#if games}}
+        <table id="open-games">
+            <thead>
+                <tr><th>Home</th><th>Away</th><th>Start</th></tr>
+                {{#each games}}
+                    <tr><td>{{this.home}}</td>
+                        <td>{{this.away}}</td>
+                        <td>{{this.start}}</td>
+                    </tr>
+                {{/each}}
+        </table>
+        {{/if}}
+    </body>
+</html>
