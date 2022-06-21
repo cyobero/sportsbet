@@ -1,6 +1,9 @@
 //! This module contains structs for handling form input.
 
+use super::db::Creatable;
+use super::schema::events;
 use chrono::{NaiveDate, NaiveDateTime};
+use diesel::Insertable;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -8,6 +11,14 @@ pub struct GameForm {
     pub home: String,
     pub away: String,
     pub start: String,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, Insertable)]
+#[table_name = "events"]
+pub struct EventForm {
+    pub game_id: i32,
+    pub description: String,
+    pub odds: i32,
 }
 
 impl GameForm {
