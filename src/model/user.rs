@@ -41,7 +41,7 @@ pub struct User {
 
 #[derive(Serialize, Deserialize, QueryableByName)]
 #[table_name = "users"]
-pub struct UserResponse {
+pub struct AuthedUser {
     #[sql_type = "Varchar"]
     pub email: String,
     #[sql_type = "Varchar"]
@@ -56,8 +56,8 @@ impl Deletable for User {
     }
 }
 
-impl<'a> Retrievable<LoginForm<'a>, UserResponse> for User {
-    fn query(conn: &PgConnection, data: &LoginForm) -> Result<Vec<UserResponse>, DieselError> {
+impl<'a> Retrievable<LoginForm<'a>, AuthedUser> for User {
+    fn query(conn: &PgConnection, data: &LoginForm) -> Result<Vec<AuthedUser>, DieselError> {
         let _stmt = format!(
             "SELECT id, email, username, role FROM users WHERE email='{}'",
             &data.email
@@ -65,7 +65,7 @@ impl<'a> Retrievable<LoginForm<'a>, UserResponse> for User {
         sql_query(_stmt).get_results(conn)
     }
 
-    fn all(conn: &PgConnection) -> Result<Vec<UserResponse>, DieselError> {
+    fn all(conn: &PgConnection) -> Result<Vec<AuthedUser>, DieselError> {
         unimplemented!()
     }
 }
