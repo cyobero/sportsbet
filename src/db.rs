@@ -2,7 +2,6 @@
 //!
 //! This module serves as the interface between the database and your app. It provides traits that
 //! allow any implementing struct to perform CRUD operations.
-use super::model::Event;
 use diesel::pg::PgConnection;
 use diesel::result::Error as DieselError;
 

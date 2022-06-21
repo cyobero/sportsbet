@@ -178,5 +178,6 @@ mod db_tests {
             },
         )
         .unwrap();
+        assert_ne!(res.len(), 0);
     }
 }
