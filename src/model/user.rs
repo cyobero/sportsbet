@@ -3,7 +3,7 @@ use crate::schema::users::{self, dsl as users_dsl};
 
 use diesel::pg::PgConnection;
 use diesel::sql_types::{Integer, Varchar};
-use diesel::{Insertable, QueryDsl, Queryable, RunQueryDsl};
+use diesel::{Insertable, Queryable, RunQueryDsl};
 use diesel_derive_enum::DbEnum;
 use serde::{Deserialize, Serialize};
 type DieselError = diesel::result::Error;
@@ -23,12 +23,18 @@ pub struct NewUser {
     pub role: Role,
 }
 
-#[derive(Clone, Deserialize, Serialize, Queryable)]
+#[derive(Clone, Deserialize, Serialize, Queryable, QueryableByName)]
+#[table_name = "users"]
 pub struct User {
-    pub id: i32,
+    #[sql_type = "Integer"]
+    id: i32,
+    #[sql_type = "Varchar"]
     pub email: String,
+    #[sql_type = "Varchar"]
     pub username: String,
-    pub password: String,
+    #[sql_type = "Varchar"]
+    password: String,
+    #[sql_type = "RoleMapping"]
     pub role: Role,
 }
 

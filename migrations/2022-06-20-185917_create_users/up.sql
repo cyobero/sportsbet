@@ -5,5 +5,6 @@ CREATE TABLE users (
     email VARCHAR(127) NOT NULL,
     username VARCHAR(127) NOT NULL,
     password VARCHAR(255) NOT NULL,
-    role ROLE NOT NULL DEFAULT 'punter'
+    role ROLE NOT NULL DEFAULT 'punter',
+    UNIQUE(email)
 );
