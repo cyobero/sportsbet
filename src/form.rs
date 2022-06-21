@@ -43,8 +43,11 @@ impl Auth for LoginForm {
     fn authenticate(self, conn: &PgConnection) -> Result<AuthedUser, AuthError> {
         let res = User::query(conn, &self);
         match res {
-            Ok(usrs) => Ok(usrs[0].clone()),
-            Err(_) => Err(AuthError::EmailNotFound),
+            Ok(usrs) => match usrs.len() {
+                0 => Err(AuthError::EmailNotFound),
+                _ => Ok(usrs[0].clone()),
+            },
+            Err(e) => Err(AuthError::EmailNotFound),
         }
     }
 }
