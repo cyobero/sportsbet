@@ -7,6 +7,11 @@
     <body>
         <h2>Create a new event</h2>
         <form method="post">
+            <select name="game_id" id="game_id">
+                {{#each games}}
+                <option value={{this.id}}>{{this.home}} vs {{this.away}} (Start: {{this.start}})</option>
+                {{/each}}
+            </select>
             <label for="description">Description</label>
             <input type="text" name="description">
             <label for="odds">Odds</label>

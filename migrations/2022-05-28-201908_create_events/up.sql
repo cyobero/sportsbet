@@ -20,8 +20,8 @@ CREATE TABLE events (
     id SERIAL NOT NULL,
     description VARCHAR(127) NOT NULL,
     odds INT NOT NULL,
-    result_id INT NULL,
+    game_id INT NULL,
     timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id, timestamp),
-    FOREIGN KEY (result_id) REFERENCES game_results(id) ON DELETE CASCADE
+    FOREIGN KEY (game_id) REFERENCES game_results(id) ON DELETE CASCADE
 );

@@ -6,7 +6,7 @@ table! {
         id -> Int4,
         description -> Varchar,
         odds -> Int4,
-        game_id -> Nullable<Int4>,
+        result_id -> Nullable<Int4>,
         timestamp -> Timestamp,
     }
 }
@@ -47,7 +47,7 @@ table! {
     }
 }
 
-joinable!(events -> game_results (game_id));
+joinable!(events -> game_results (result_id));
 joinable!(game_results -> games (game_id));
 
 allow_tables_to_appear_in_same_query!(

@@ -49,7 +49,10 @@ async fn post_game(
         .await
         .map(|_| {
             let body = hb
-                .render("success", &json!({"message": "New game created"}))
+                .render(
+                    "success",
+                    &json!({"message": "New game created", "redirect": "/games/form" }),
+                )
                 .unwrap();
             HttpResponse::Ok().body(body)
         })
@@ -65,16 +68,13 @@ async fn post_game(
 #[get("/games/form")]
 async fn games_form(hb: web::Data<Handlebars<'_>>, _req: HttpRequest) -> impl Responder {
     let body = hb
-        .render(
-            "game_form",
-            &json!({ "teams": NBA_TEAMS, "dt": Local::now().naive_utc() }),
-        )
+        .render("game_form", &json!({ "teams": NBA_TEAMS }))
         .unwrap();
     HttpResponse::Ok().body(body)
 }
 
 /// Request handler for retrieving all Events
-#[get("/v1/events")]
+#[get("/events")]
 async fn get_events(pool: web::Data<DbPool>) -> impl Responder {
     let conn = pool.get().expect("Could not establish connection");
     web::block(move || Event::all(&conn))
@@ -87,9 +87,24 @@ async fn get_events(pool: web::Data<DbPool>) -> impl Responder {
 
 /// Request handler for getting a form for creating a new Event
 #[get("/events/form")]
-async fn event_form(hb: web::Data<Handlebars<'_>>, _req: HttpRequest) -> impl Responder {
-    let body = hb.render("event_form", &{}).unwrap();
-    HttpResponse::Ok().body(body)
+async fn event_form(
+    pool: web::Data<DbPool>,
+    hb: web::Data<Handlebars<'_>>,
+    _req: HttpRequest,
+) -> impl Responder {
+    let conn = pool.get().expect("Could not get connection.");
+    web::block(move || Game::all(&conn))
+        .await
+        .map(|games| {
+            let body = hb.render("event_form", &json!({ "games": games })).unwrap();
+            HttpResponse::Ok().body(body)
+        })
+        .map_err(|e| {
+            let body = hb
+                .render("event_form", &json!({"message": e.to_string() }))
+                .unwrap();
+            HttpResponse::Ok().body(body)
+        })
 }
 
 /// Request handler for posting event forms.
@@ -105,7 +120,10 @@ async fn post_event(
         .await
         .map(|_| {
             let body = hb
-                .render("event_form", &json!({"message": "New Event created."}))
+                .render(
+                    "success",
+                    &json!({"message": "New Event created.", "redirect": "/events/form" }),
+                )
                 .unwrap();
             HttpResponse::Ok().body(body)
         })
