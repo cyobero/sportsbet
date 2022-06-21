@@ -149,11 +149,11 @@ mod db_tests {
     }
 
     #[test]
-    fn user_created() {
+    fn user_created_and_deleted() {
         use crate::model::user::NewUser;
         use crate::model::user::Role::*;
         let usr = NewUser {
-            email: "foo@bar.com".to_string(),
+            email: "foo1@bar.com".to_string(),
             username: "test-user".to_string(),
             password: "password".to_string(),
             role: Bookie,
@@ -161,5 +161,22 @@ mod db_tests {
         let conn = establish_connection().unwrap();
         let new = usr.create(&conn).unwrap();
         assert_eq!(new.role, Bookie);
+        let del = new.delete(&conn);
+        assert!(del.is_ok());
+    }
+
+    #[test]
+    fn user_queried() {
+        use crate::form::LoginForm;
+        use crate::model::user::User;
+        let conn = establish_connection().unwrap();
+        let res = User::query(
+            &conn,
+            &LoginForm {
+                email: "foo@bar.com",
+                password: "password",
+            },
+        )
+        .unwrap();
     }
 }

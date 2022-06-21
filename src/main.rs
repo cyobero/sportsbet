@@ -84,7 +84,7 @@ async fn main() -> std::io::Result<()> {
             .service(games_form)
             .service(post_game)
             .service(get_games)
-            .service(user::login)
+            .service(user::login_form)
     })
     .bind(addrress)?
     .run()

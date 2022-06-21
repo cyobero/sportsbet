@@ -1,9 +1,10 @@
-use crate::db::Creatable;
+use crate::db::{Creatable, Deletable, Retrievable};
+use crate::form::LoginForm;
 use crate::schema::users::{self, dsl as users_dsl};
 
 use diesel::pg::PgConnection;
 use diesel::sql_types::{Integer, Varchar};
-use diesel::{Insertable, Queryable, RunQueryDsl};
+use diesel::{sql_query, ExpressionMethods, Insertable, QueryDsl, Queryable, RunQueryDsl};
 use diesel_derive_enum::DbEnum;
 use serde::{Deserialize, Serialize};
 type DieselError = diesel::result::Error;
@@ -36,6 +37,37 @@ pub struct User {
     password: String,
     #[sql_type = "RoleMapping"]
     pub role: Role,
+}
+
+#[derive(Serialize, Deserialize, QueryableByName)]
+#[table_name = "users"]
+pub struct UserResponse {
+    #[sql_type = "Varchar"]
+    pub email: String,
+    #[sql_type = "Varchar"]
+    pub username: String,
+    #[sql_type = "RoleMapping"]
+    pub role: Role,
+}
+
+impl Deletable for User {
+    fn delete(&self, conn: &PgConnection) -> Result<User, DieselError> {
+        diesel::delete(users_dsl::users.filter(users_dsl::email.eq(&self.email))).get_result(conn)
+    }
+}
+
+impl<'a> Retrievable<LoginForm<'a>, UserResponse> for User {
+    fn query(conn: &PgConnection, data: &LoginForm) -> Result<Vec<UserResponse>, DieselError> {
+        let _stmt = format!(
+            "SELECT id, email, username, role FROM users WHERE email='{}'",
+            &data.email
+        );
+        sql_query(_stmt).get_results(conn)
+    }
+
+    fn all(conn: &PgConnection) -> Result<Vec<UserResponse>, DieselError> {
+        unimplemented!()
+    }
 }
 
 impl Creatable for NewUser {

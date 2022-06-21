@@ -31,7 +31,7 @@ where
 
 /// Trait for deleting records
 pub trait Deletable<Output = Self, Conn = PgConnection, E = DieselError> {
-    fn delete(&self, conn: &PgConnection) -> Result<Event, E>;
+    fn delete(&self, conn: &PgConnection) -> Result<Output, E>;
 }
 
 /// Trait for updating records
