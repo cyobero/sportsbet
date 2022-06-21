@@ -1,14 +1,26 @@
-//! This module contains structs for handling form input.
-
-use super::schema::events;
+use crate::db::Retrievable;
+use crate::model::user::{AuthedUser, User};
+use crate::schema::events;
+use actix_web::web::Form;
 use chrono::{NaiveDate, NaiveDateTime};
+use diesel::pg::PgConnection;
 use diesel::Insertable;
 use serde::{Deserialize, Serialize};
 
+#[derive(Debug, Clone)]
+pub enum AuthError {
+    EmailNotFound,
+}
+
+pub trait Auth<C = PgConnection, E = AuthError> {
+    type Output;
+    fn authenticate(self, conn: &C) -> Result<Self::Output, E>;
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct LoginForm<'a> {
-    pub email: &'a str,
-    pub password: &'a str,
+pub struct LoginForm {
+    pub email: String,
+    pub password: String,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -24,6 +36,17 @@ pub struct EventForm {
     pub game_id: i32,
     pub description: String,
     pub odds: i32,
+}
+
+impl Auth for LoginForm {
+    type Output = AuthedUser;
+    fn authenticate(self, conn: &PgConnection) -> Result<AuthedUser, AuthError> {
+        let res = User::query(conn, &self);
+        match res {
+            Ok(usrs) => Ok(usrs[0].clone()),
+            Err(_) => Err(AuthError::EmailNotFound),
+        }
+    }
 }
 
 impl GameForm {
