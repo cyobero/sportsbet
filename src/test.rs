@@ -150,8 +150,10 @@ mod db_tests {
 
     #[test]
     fn user_created() {
-        use crate::model::Role::*;
+        use crate::model::user::NewUser;
+        use crate::model::user::Role::*;
         let usr = NewUser {
+            email: "foo@bar.com".to_string(),
             username: "test-user".to_string(),
             password: "password".to_string(),
             role: Bookie,

@@ -1,37 +1,15 @@
+pub mod user;
+
 use super::db::{Creatable, Deletable, Retrievable};
 use super::schema::events::{self, dsl as events_dsl};
 use super::schema::games::{self, dsl as games_dsl};
-use super::schema::users::{self, dsl as users_dsl};
 
 use chrono::NaiveDateTime;
 use diesel::pg::PgConnection;
 use diesel::result::Error as DieselError;
 use diesel::sql_types::{Integer, Timestamp, Varchar};
 use diesel::{sql_query, ExpressionMethods, Insertable, QueryDsl, Queryable, RunQueryDsl};
-use diesel_derive_enum::DbEnum;
 use serde::{Deserialize, Serialize};
-
-#[derive(Clone, Copy, Debug, DbEnum, Deserialize, Serialize, PartialEq)]
-pub enum Role {
-    Bookie,
-    Punter,
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize, Queryable)]
-pub struct User {
-    pub id: i32,
-    pub username: String,
-    pub password: String,
-    pub role: Role,
-}
-
-#[derive(Clone, Debug, Insertable)]
-#[table_name = "users"]
-pub struct NewUser {
-    pub username: String,
-    pub password: String,
-    pub role: Role,
-}
 
 #[derive(Clone, Debug, Deserialize, Serialize, Queryable, QueryableByName)]
 pub struct Game {
@@ -92,15 +70,6 @@ impl Default for GameQuery {
             month: None,
             day: None,
         }
-    }
-}
-
-impl Creatable for NewUser {
-    type Output = User;
-    fn create(&self, conn: &PgConnection) -> Result<User, DieselError> {
-        diesel::insert_into(users_dsl::users)
-            .values(self)
-            .get_result(conn)
     }
 }
 

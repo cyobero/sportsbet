@@ -3,25 +3,23 @@ extern crate diesel;
 
 pub mod db;
 pub mod form;
-pub mod handlers;
+pub mod handler;
 pub mod model;
 pub mod schema;
 pub mod test;
 
-use handlebars::Handlebars;
-use handlers::*;
-
 use actix_web::{web, App, HttpServer};
-
 use diesel::pg::PgConnection;
 use diesel::r2d2::{self, ConnectionManager};
 use dotenv::dotenv;
+use handlebars::Handlebars;
+use handler::*;
 
 use std::env;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
 pub mod exports {
-    pub use crate::model::RoleMapping as Role;
+    pub use crate::model::user::RoleMapping as Role;
 }
 pub type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
@@ -86,6 +84,7 @@ async fn main() -> std::io::Result<()> {
             .service(games_form)
             .service(post_game)
             .service(get_games)
+            .service(user::login)
     })
     .bind(addrress)?
     .run()

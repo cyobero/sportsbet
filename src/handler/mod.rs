@@ -1,8 +1,9 @@
-//! Module for proccessing HTTP requests
-use super::db::{Creatable, Retrievable};
+pub mod user;
+
 use super::form::GameForm;
 use super::model::{Event, Game, NewEvent, NewGame};
 use super::DbPool;
+use crate::db::{Creatable, Retrievable};
 
 use super::NBA_TEAMS;
 use actix_web::{get, post, web, HttpRequest, HttpResponse, Responder};
