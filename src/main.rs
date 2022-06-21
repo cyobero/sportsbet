@@ -3,14 +3,13 @@ extern crate diesel;
 
 pub mod db;
 pub mod form;
-pub mod handler;
 pub mod handlers;
 pub mod model;
 pub mod schema;
 pub mod test;
 
 use handlebars::Handlebars;
-use handler::*;
+use handlers::*;
 
 use actix_web::{web, App, HttpServer};
 
