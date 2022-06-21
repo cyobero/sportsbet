@@ -36,6 +36,7 @@ mod db_tests {
         let conn = establish_connection().unwrap();
         let new = NewEvent {
             description: "CHI (+3) vs DET (-3)".to_owned(),
+            game_id: 1,
             odds: -110,
         };
         let event = new.create(&conn).unwrap();
@@ -57,14 +58,17 @@ mod db_tests {
         let data = vec![
             NewEvent {
                 description: "FOO vs BAR (-6.5)".to_owned(),
+                game_id: 1,
                 odds: -105,
             },
             NewEvent {
                 description: "FOO (+6.5) vs BAR".to_owned(),
+                game_id: 1,
                 odds: -110,
             },
             NewEvent {
                 description: "CHI vs BOS U 51.5".to_owned(),
+                game_id: 1,
                 odds: -110,
             },
         ];
@@ -106,6 +110,7 @@ mod db_tests {
         let conn = establish_connection().unwrap();
         let new = NewEvent {
             description: "test".to_string(),
+            game_id: 1,
             odds: 110,
         };
         let event = new.create(&conn).unwrap();

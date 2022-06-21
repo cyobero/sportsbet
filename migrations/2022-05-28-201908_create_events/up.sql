@@ -23,5 +23,5 @@ CREATE TABLE events (
     game_id INT NULL,
     timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id, timestamp),
-    FOREIGN KEY (game_id) REFERENCES game_results(id) ON DELETE CASCADE
+    FOREIGN KEY (game_id) REFERENCES games(id) ON DELETE CASCADE
 );

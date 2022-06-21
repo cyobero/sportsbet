@@ -47,7 +47,7 @@ table! {
     }
 }
 
-joinable!(events -> game_results (game_id));
+joinable!(events -> games (game_id));
 joinable!(game_results -> games (game_id));
 
 allow_tables_to_appear_in_same_query!(

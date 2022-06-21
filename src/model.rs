@@ -58,13 +58,14 @@ pub struct Event {
     pub id: i32,
     pub description: String,
     pub odds: i32,
-    pub result_id: Option<i32>,
+    pub game_id: Option<i32>,
     pub timestamp: NaiveDateTime,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, Insertable)]
 #[table_name = "events"]
 pub struct NewEvent {
+    pub game_id: i32,
     pub description: String,
     pub odds: i32,
 }
