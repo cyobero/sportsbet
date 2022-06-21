@@ -1,10 +1,15 @@
 //! This module contains structs for handling form input.
 
-use super::db::Creatable;
 use super::schema::events;
 use chrono::{NaiveDate, NaiveDateTime};
 use diesel::Insertable;
 use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LoginForm<'a> {
+    pub email: &'a str,
+    pub password: &'a str,
+}
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct GameForm {
