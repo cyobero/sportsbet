@@ -75,13 +75,19 @@ async fn games_form(hb: web::Data<Handlebars<'_>>, _req: HttpRequest) -> impl Re
 
 /// Request handler for retrieving all Events
 #[get("/events")]
-async fn get_events(pool: web::Data<DbPool>) -> impl Responder {
+async fn get_events(hb: web::Data<Handlebars<'_>>, pool: web::Data<DbPool>) -> impl Responder {
     let conn = pool.get().expect("Could not establish connection");
     web::block(move || Event::all(&conn))
         .await
-        .map(|dta| web::Json(dta))
+        .map(|evts| {
+            let body = hb.render("events", &json!({ "events": evts })).unwrap();
+            HttpResponse::Ok().body(body)
+        })
         .map_err(|e| {
-            HttpResponse::InternalServerError().json(json!({"status": 404, "data": e.to_string() }))
+            let body = hb
+                .render("events", &json!({"message": e.to_string() }))
+                .unwrap();
+            HttpResponse::Ok().body(body)
         })
 }
 
