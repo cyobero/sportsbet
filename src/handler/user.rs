@@ -1,13 +1,6 @@
 //! Module for proccessing HTTP requests
 use super::DbPool;
-use crate::db::{Creatable, Retrievable};
-use crate::form::{Auth, GameForm, LoginForm};
-use crate::model::user::{AuthedUser, User};
-use crate::model::{Event, Game, NewEvent, NewGame};
-use crate::schema::users::{self, dsl as users_dsl};
-use diesel::pg::PgConnection;
-use diesel::result::Error as DieselError;
-use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl};
+use crate::form::{Auth, LoginForm};
 use handlebars::Handlebars;
 
 use actix_web::{get, post, web, HttpRequest, HttpResponse, Responder};
@@ -20,7 +13,6 @@ async fn login(
     form: web::Form<LoginForm>,
 ) -> impl Responder {
     let conn = pool.get().expect("Could not get connection.");
-    let pass = form.clone().password;
     web::block(move || form.0.validate(&conn))
         .await
         .map(|_| {

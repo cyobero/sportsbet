@@ -15,11 +15,6 @@ mod handler_tests {
     use crate::db::*;
     use crate::model::*;
     use reqwest;
-
-    //    #[test]
-    //fn get_events_handler() {
-    //let resp = reqwest::get("http://localhost:8305/v1/events")
-    //    }
 }
 
 #[cfg(test)]
@@ -173,8 +168,8 @@ mod db_tests {
         let res = User::query(
             &conn,
             &LoginForm {
-                email: "foo@bar.com",
-                password: "password",
+                email: "foo@bar.com".to_string(),
+                password: "password".to_string(),
             },
         )
         .unwrap();
