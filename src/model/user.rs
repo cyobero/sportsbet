@@ -34,7 +34,7 @@ pub struct User {
     #[sql_type = "Varchar"]
     pub username: String,
     #[sql_type = "Varchar"]
-    password: String,
+    pub password: String,
     #[sql_type = "RoleMapping"]
     pub role: Role,
 }
@@ -46,6 +46,8 @@ pub struct AuthedUser {
     pub email: String,
     #[sql_type = "Varchar"]
     pub username: String,
+    #[sql_type = "Varchar"]
+    pub password: String,
     #[sql_type = "RoleMapping"]
     pub role: Role,
 }
@@ -56,16 +58,14 @@ impl Deletable for User {
     }
 }
 
-impl Retrievable<LoginForm, AuthedUser> for User {
-    fn query(conn: &PgConnection, data: &LoginForm) -> Result<Vec<AuthedUser>, DieselError> {
-        let _stmt = format!(
-            "SELECT id, email, username, role FROM users WHERE email='{}'",
-            &data.email
-        );
-        sql_query(_stmt).get_results(conn)
+impl Retrievable<LoginForm> for User {
+    fn query(conn: &PgConnection, data: &LoginForm) -> Result<Vec<User>, DieselError> {
+        users_dsl::users
+            .filter(users_dsl::email.eq(&data.email))
+            .get_results(conn)
     }
 
-    fn all(conn: &PgConnection) -> Result<Vec<AuthedUser>, DieselError> {
+    fn all(conn: &PgConnection) -> Result<Vec<User>, DieselError> {
         unimplemented!()
     }
 }

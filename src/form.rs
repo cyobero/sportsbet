@@ -10,11 +10,13 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone)]
 pub enum AuthError {
     EmailNotFound,
+    IncorrectPassword,
 }
 
 pub trait Auth<C = PgConnection, E = AuthError> {
     type Output;
-    fn authenticate(self, conn: &C) -> Result<Self::Output, E>;
+    fn authenticate(&self, conn: &C) -> Result<Self::Output, E>;
+    fn validate(&self, conn: &C) -> Result<Self::Output, E>;
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -39,8 +41,8 @@ pub struct EventForm {
 }
 
 impl Auth for LoginForm {
-    type Output = AuthedUser;
-    fn authenticate(self, conn: &PgConnection) -> Result<AuthedUser, AuthError> {
+    type Output = User;
+    fn authenticate(&self, conn: &PgConnection) -> Result<User, AuthError> {
         let res = User::query(conn, &self);
         match res {
             Ok(usrs) => match usrs.len() {
@@ -48,6 +50,20 @@ impl Auth for LoginForm {
                 _ => Ok(usrs[0].clone()),
             },
             Err(e) => Err(AuthError::EmailNotFound),
+        }
+    }
+
+    fn validate(&self, conn: &PgConnection) -> Result<User, AuthError> {
+        let usr = self.authenticate(conn);
+        match usr {
+            Ok(u) => {
+                if &u.password == &self.password {
+                    Ok(u)
+                } else {
+                    Err(AuthError::IncorrectPassword)
+                }
+            }
+            Err(e) => Err(e),
         }
     }
 }

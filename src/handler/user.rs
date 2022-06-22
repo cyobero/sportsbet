@@ -20,20 +20,21 @@ async fn login(
     form: web::Form<LoginForm>,
 ) -> impl Responder {
     let conn = pool.get().expect("Could not get connection.");
-    web::block(move || form.0.authenticate(&conn))
+    let pass = form.clone().password;
+    web::block(move || form.0.validate(&conn))
         .await
         .map(|_| {
             let body = hb
                 .render(
                     "success",
-                    &json!({"message": "Successfully logged in!", "redirect": "/events"}),
+                    &json!({"message": "login succesful", "redirect": "/events "}),
                 )
                 .unwrap();
             HttpResponse::Ok().body(body)
         })
         .map_err(|e| {
             let body = hb
-                .render("login", &json!({"error": e.to_string() }))
+                .render("login", &json!({"message": e.to_string() }))
                 .unwrap();
             HttpResponse::Ok().body(body)
         })
