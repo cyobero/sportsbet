@@ -1,7 +1,6 @@
 use crate::db::Retrievable;
-use crate::model::user::{AuthedUser, User};
+use crate::model::user::User;
 use crate::schema::events;
-use actix_web::web::Form;
 use chrono::{NaiveDate, NaiveDateTime};
 use diesel::pg::PgConnection;
 use diesel::Insertable;
@@ -49,7 +48,7 @@ impl Auth for LoginForm {
                 0 => Err(AuthError::EmailNotFound),
                 _ => Ok(usrs[0].clone()),
             },
-            Err(e) => Err(AuthError::EmailNotFound),
+            Err(_) => Err(AuthError::EmailNotFound),
         }
     }
 
