@@ -32,7 +32,7 @@ mod form_tests {
             password: "password".to_string(),
         };
         let usr = form.user(&conn).await.unwrap();
-        assert_eq!(usr.email, form.email);
+        assert_eq!(usr.email, "foo@bar.com".to_owned());
     }
 
     #[actix_web::main]
@@ -44,7 +44,7 @@ mod form_tests {
             password: "password".to_string(),
         };
         let usr = form.user(&conn).await;
-        assert!(usr.is_err());
+        assert!(usr.is_none());
     }
 
     #[actix_web::main]

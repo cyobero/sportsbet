@@ -1,9 +1,10 @@
 //! A module for form handling
 
+use std::fmt;
+
 use crate::db::Retrievable;
 use crate::model::user::User;
 use crate::schema::events;
-use async_trait::async_trait;
 use chrono::{NaiveDate, NaiveDateTime};
 use diesel::pg::PgConnection;
 use diesel::{Connection, Insertable};
@@ -15,12 +16,11 @@ pub enum AuthError {
     IncorrectPassword,
 }
 
-//pub trait Auth<C = PgConnection, E = AuthError> {
-//type Output;
-//fn authenticate(&self, conn: &C) -> Result<Self::Output, E>;
-//fn validate(&self, conn: &C) -> Result<Self::Output, E>;
-//}
-
+//////////////////////////////////////////////////////////////////////////
+//                                                                      //
+/////// Structs //////////////////////////////////////////////////////////
+//                                                                      //
+//////////////////////////////////////////////////////////////////////////
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LoginForm {
     pub email: String,
@@ -47,6 +47,14 @@ pub struct EventForm {
 /////// Implementations //////////////////////////////////////////////////
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
+impl fmt::Display for AuthError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            AuthError::IncorrectPassword => write!(f, "IncorrectPassword"),
+            AuthError::EmailNotFound => write!(f, "EmailNotFound"),
+        }
+    }
+}
 
 impl LoginForm {
     pub fn new() -> Self {
@@ -57,52 +65,27 @@ impl LoginForm {
     }
 
     pub async fn authenticate(&self, conn: &PgConnection) -> Result<User, AuthError> {
-        let usr = self.user(conn).await.unwrap();
-        if &usr.password == &self.password {
-            Ok(usr)
-        } else {
-            Err(AuthError::IncorrectPassword)
+        match self.user(conn).await {
+            None => Err(AuthError::EmailNotFound),
+            Some(u) => {
+                if self.password == u.password {
+                    Ok(u)
+                } else {
+                    Err(AuthError::IncorrectPassword)
+                }
+            }
         }
     }
 
-    /// Retrieves associated database object. Returns empty User struct if no associated User object found.
-    pub async fn user(&self, conn: &PgConnection) -> Result<User, AuthError> {
+    pub async fn user(&self, conn: &PgConnection) -> Option<User> {
         let usrs = User::query(conn, &self).unwrap();
-        if usrs.len() == 0 {
-            Err(AuthError::EmailNotFound)
+        if usrs.len() > 0 {
+            Some(usrs[0].clone())
         } else {
-            Ok(usrs[0].clone())
+            None
         }
     }
 }
-
-//impl Auth for LoginForm {
-//type Output = User;
-//fn authenticate(&self, conn: &PgConnection) -> Result<User, AuthError> {
-//let res = User::query(conn, &self);
-//match res {
-//Ok(usrs) => match usrs.len() {
-//0 => Err(AuthError::EmailNotFound),
-//_ => Ok(usrs[0].clone()),
-//},
-//Err(_) => Err(AuthError::EmailNotFound),
-//}
-//}
-
-//fn validate(&self, conn: &PgConnection) -> Result<User, AuthError> {
-//let usr = self.authenticate(conn);
-//match usr {
-//Ok(u) => {
-//if &u.password == &self.password {
-//Ok(u)
-//} else {
-//Err(AuthError::IncorrectPassword)
-//}
-//}
-//Err(e) => Err(e),
-//}
-//}
-//}
 
 impl GameForm {
     pub fn new() -> Self {
