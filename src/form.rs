@@ -7,7 +7,7 @@ use crate::model::user::User;
 use crate::schema::events;
 use chrono::{NaiveDate, NaiveDateTime};
 use diesel::pg::PgConnection;
-use diesel::{Connection, Insertable};
+use diesel::Insertable;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone)]
