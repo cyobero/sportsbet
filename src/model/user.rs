@@ -4,7 +4,7 @@ use crate::schema::users::{self, dsl as users_dsl};
 
 use diesel::pg::PgConnection;
 use diesel::sql_types::{Integer, Varchar};
-use diesel::{sql_query, ExpressionMethods, Insertable, QueryDsl, Queryable, RunQueryDsl};
+use diesel::{ExpressionMethods, Insertable, QueryDsl, Queryable, RunQueryDsl};
 use diesel_derive_enum::DbEnum;
 use serde::{Deserialize, Serialize};
 type DieselError = diesel::result::Error;
@@ -39,7 +39,7 @@ pub struct User {
     pub role: Role,
 }
 
-#[derive(Clone, Serialize, Deserialize, QueryableByName)]
+#[derive(Clone, Serialize, Deserialize, Queryable, QueryableByName)]
 #[table_name = "users"]
 pub struct AuthedUser {
     #[sql_type = "Varchar"]
@@ -51,6 +51,12 @@ pub struct AuthedUser {
     #[sql_type = "RoleMapping"]
     pub role: Role,
 }
+
+//////////////////////////////////////////////////////////////////////////
+//                                                                      //
+/////// Implementations //////////////////////////////////////////////////
+//                                                                      //
+//////////////////////////////////////////////////////////////////////////
 
 impl Deletable for User {
     fn delete(&self, conn: &PgConnection) -> Result<User, DieselError> {
@@ -66,7 +72,7 @@ impl Retrievable<LoginForm> for User {
     }
 
     fn all(conn: &PgConnection) -> Result<Vec<User>, DieselError> {
-        unimplemented!()
+        users_dsl::users.load(conn)
     }
 }
 
