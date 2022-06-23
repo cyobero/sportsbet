@@ -1,3 +1,5 @@
+//! A module for form handling
+
 use crate::db::Retrievable;
 use crate::model::user::User;
 use crate::schema::events;
@@ -38,6 +40,12 @@ pub struct EventForm {
     pub description: String,
     pub odds: i32,
 }
+
+//////////////////////////////////////////////////////////////////////////
+//                                                                      //
+/////// Implementations //////////////////////////////////////////////////
+//                                                                      //
+//////////////////////////////////////////////////////////////////////////
 
 impl Auth for LoginForm {
     type Output = User;
