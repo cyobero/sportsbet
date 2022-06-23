@@ -4,17 +4,40 @@ use diesel::{Connection, ConnectionError};
 use dotenv::dotenv;
 use std::env;
 
-fn establish_connection() -> Result<PgConnection, ConnectionError> {
+pub fn establish_connection() -> Result<PgConnection, ConnectionError> {
     dotenv().ok();
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set.");
     PgConnection::establish(&database_url)
 }
 
 #[cfg(test)]
-mod handler_tests {
-    use crate::db::*;
-    use crate::model::*;
-    use reqwest;
+mod form_tests {
+    use super::establish_connection;
+    use crate::form::*;
+
+    #[test]
+    fn signup_email_available() {
+        let conn = establish_connection().unwrap();
+        let dta = SignupForm {
+            email: "available@email.com",
+            username: "foobars",
+            password1: "password",
+            password2: "password",
+        };
+    }
+
+    #[test]
+    fn signup_email_taken() {
+        let conn = establish_connection().unwrap();
+        let dta = SignupForm {
+            email: "foo@bar.com",
+            username: "foobars",
+            password1: "password",
+            password2: "password",
+        };
+        let res = dta.authenticate(&conn);
+        assert!(res.is_ok())
+    }
 }
 
 #[cfg(test)]

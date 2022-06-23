@@ -1,17 +1,20 @@
 //! A module for form handling
 
 use crate::db::Retrievable;
-use crate::model::user::User;
+use crate::model::user::Role;
+use crate::model::user::{AuthedUser, User};
 use crate::schema::events;
 use chrono::{NaiveDate, NaiveDateTime};
 use diesel::pg::PgConnection;
 use diesel::Insertable;
+use diesel::{sql_query, QueryDsl, RunQueryDsl};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone)]
 pub enum AuthError {
     EmailNotFound,
     IncorrectPassword,
+    Taken,
 }
 
 pub trait Auth<C = PgConnection, E = AuthError> {
@@ -49,11 +52,41 @@ pub struct EventForm {
     pub odds: i32,
 }
 
-//////////////////////////////////////////////////////////////////////////
-//                                                                      //
-/////// Implementations //////////////////////////////////////////////////
-//                                                                      //
-//////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                               //
+/////// Implementations ///////////////////////////////////////////////////////////////////////////
+//                                                                                               //
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+impl Default for AuthedUser {
+    fn default() -> Self {
+        AuthedUser {
+            email: String::new(),
+            username: String::new(),
+            password: String::new(),
+            role: Role::Punter,
+        }
+    }
+}
+
+impl Auth for SignupForm<'_> {
+    type Output = AuthedUser;
+    fn authenticate(&self, conn: &PgConnection) -> Result<AuthedUser, AuthError> {
+        let _stmt = format!(
+            "SELECT email, username, role FROM users WHERE email = '{}' OR username = '{}'",
+            &self.email, &self.username
+        );
+        let res = sql_query(_stmt).get_results::<AuthedUser>(conn);
+        match res {
+            Ok(_) => Err(AuthError::Taken),
+            Err(_) => Ok(AuthedUser::default()),
+        }
+    }
+
+    fn validate(&self, conn: &PgConnection) -> Result<AuthedUser, AuthError> {
+        unimplemented!()
+    }
+}
 
 impl Auth for LoginForm {
     type Output = User;
