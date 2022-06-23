@@ -20,6 +20,14 @@ pub trait Auth<C = PgConnection, E = AuthError> {
     fn validate(&self, conn: &C) -> Result<Self::Output, E>;
 }
 
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct SignupForm<'a> {
+    pub email: &'a str,
+    pub username: &'a str,
+    pub password1: &'a str,
+    pub password2: &'a str,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LoginForm {
     pub email: String,

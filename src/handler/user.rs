@@ -6,6 +6,12 @@ use handlebars::Handlebars;
 use actix_web::{get, post, web, HttpRequest, HttpResponse, Responder};
 use serde_json::json;
 
+#[get("/signup")]
+async fn signup_form(hb: web::Data<Handlebars<'_>>, _req: HttpRequest) -> impl Responder {
+    let body = hb.render("signup", &{}).unwrap();
+    HttpResponse::Ok().body(body)
+}
+
 #[post("/login")]
 async fn login(
     pool: web::Data<DbPool>,

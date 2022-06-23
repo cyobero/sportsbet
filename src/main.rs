@@ -90,6 +90,7 @@ async fn main() -> std::io::Result<()> {
             .service(get_games)
             .service(user::login_form)
             .service(user::login)
+            .service(user::signup_form)
     })
     .bind(addrress)?
     .run()
