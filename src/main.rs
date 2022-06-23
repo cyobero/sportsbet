@@ -60,6 +60,10 @@ static NBA_TEAMS: [(&'static str, &'static str); 30] = [
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set.");
+    println!(
+        "dtabase url: {}",
+        env::var("DATABASE_URL").expect("gang shit")
+    );
     let manager = ConnectionManager::<PgConnection>::new(database_url);
     let pool = r2d2::Pool::builder()
         .build(manager)
