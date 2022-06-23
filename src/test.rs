@@ -43,8 +43,20 @@ mod form_tests {
             email: "doesnt@exist.com".to_owned(),
             password: "password".to_string(),
         };
-        let usr = form.user(&conn).await.unwrap();
-        assert_eq!(&usr.email, "");
+        let usr = form.user(&conn).await;
+        assert!(usr.is_err());
+    }
+
+    #[actix_web::main]
+    #[test]
+    async fn user_authenticated() {
+        let conn = establish_connection().unwrap();
+        let form = LoginForm {
+            email: "foo@bar.com".to_owned(),
+            password: "password".to_string(),
+        };
+        let usr = form.authenticate(&conn).await.unwrap();
+        assert_eq!(usr.password, form.password);
     }
 }
 

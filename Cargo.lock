@@ -2355,6 +2355,7 @@ dependencies = [
  "actix-files",
  "actix-rt 2.7.0",
  "actix-web 3.3.3",
+ "async-trait",
  "chrono",
  "diesel",
  "diesel-derive-enum",

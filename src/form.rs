@@ -3,6 +3,7 @@
 use crate::db::Retrievable;
 use crate::model::user::User;
 use crate::schema::events;
+use async_trait::async_trait;
 use chrono::{NaiveDate, NaiveDateTime};
 use diesel::pg::PgConnection;
 use diesel::{Connection, Insertable};
@@ -55,11 +56,20 @@ impl LoginForm {
         }
     }
 
+    pub async fn authenticate(&self, conn: &PgConnection) -> Result<User, AuthError> {
+        let usr = self.user(conn).await.unwrap();
+        if &usr.password == &self.password {
+            Ok(usr)
+        } else {
+            Err(AuthError::IncorrectPassword)
+        }
+    }
+
     /// Retrieves associated database object. Returns empty User struct if no associated User object found.
-    pub async fn user(&self, conn: &PgConnection) -> Result<User, diesel::result::Error> {
-        let usrs = User::query(conn, &self)?;
+    pub async fn user(&self, conn: &PgConnection) -> Result<User, AuthError> {
+        let usrs = User::query(conn, &self).unwrap();
         if usrs.len() == 0 {
-            Ok(User::default())
+            Err(AuthError::EmailNotFound)
         } else {
             Ok(usrs[0].clone())
         }
