@@ -5,7 +5,7 @@ use crate::model::user::User;
 use crate::schema::events;
 use chrono::{NaiveDate, NaiveDateTime};
 use diesel::pg::PgConnection;
-use diesel::Insertable;
+use diesel::{Connection, Insertable};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone)]
@@ -14,11 +14,11 @@ pub enum AuthError {
     IncorrectPassword,
 }
 
-pub trait Auth<C = PgConnection, E = AuthError> {
-    type Output;
-    fn authenticate(&self, conn: &C) -> Result<Self::Output, E>;
-    fn validate(&self, conn: &C) -> Result<Self::Output, E>;
-}
+//pub trait Auth<C = PgConnection, E = AuthError> {
+//type Output;
+//fn authenticate(&self, conn: &C) -> Result<Self::Output, E>;
+//fn validate(&self, conn: &C) -> Result<Self::Output, E>;
+//}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LoginForm {
@@ -47,33 +47,52 @@ pub struct EventForm {
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
-impl Auth for LoginForm {
-    type Output = User;
-    fn authenticate(&self, conn: &PgConnection) -> Result<User, AuthError> {
-        let res = User::query(conn, &self);
-        match res {
-            Ok(usrs) => match usrs.len() {
-                0 => Err(AuthError::EmailNotFound),
-                _ => Ok(usrs[0].clone()),
-            },
-            Err(_) => Err(AuthError::EmailNotFound),
+impl LoginForm {
+    pub fn new() -> Self {
+        LoginForm {
+            email: String::new(),
+            password: String::new(),
         }
     }
 
-    fn validate(&self, conn: &PgConnection) -> Result<User, AuthError> {
-        let usr = self.authenticate(conn);
-        match usr {
-            Ok(u) => {
-                if &u.password == &self.password {
-                    Ok(u)
-                } else {
-                    Err(AuthError::IncorrectPassword)
-                }
-            }
-            Err(e) => Err(e),
+    /// Retrieves associated database object. Returns empty User struct if no associated User object found.
+    pub async fn user(&self, conn: &PgConnection) -> Result<User, diesel::result::Error> {
+        let usrs = User::query(conn, &self)?;
+        if usrs.len() == 0 {
+            Ok(User::default())
+        } else {
+            Ok(usrs[0].clone())
         }
     }
 }
+
+//impl Auth for LoginForm {
+//type Output = User;
+//fn authenticate(&self, conn: &PgConnection) -> Result<User, AuthError> {
+//let res = User::query(conn, &self);
+//match res {
+//Ok(usrs) => match usrs.len() {
+//0 => Err(AuthError::EmailNotFound),
+//_ => Ok(usrs[0].clone()),
+//},
+//Err(_) => Err(AuthError::EmailNotFound),
+//}
+//}
+
+//fn validate(&self, conn: &PgConnection) -> Result<User, AuthError> {
+//let usr = self.authenticate(conn);
+//match usr {
+//Ok(u) => {
+//if &u.password == &self.password {
+//Ok(u)
+//} else {
+//Err(AuthError::IncorrectPassword)
+//}
+//}
+//Err(e) => Err(e),
+//}
+//}
+//}
 
 impl GameForm {
     pub fn new() -> Self {

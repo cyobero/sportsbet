@@ -52,6 +52,18 @@ pub struct AuthedUser {
     pub role: Role,
 }
 
+impl Default for User {
+    fn default() -> User {
+        User {
+            id: -1,
+            email: String::new(),
+            username: String::new(),
+            password: String::new(),
+            role: Role::Punter,
+        }
+    }
+}
+
 impl Deletable for User {
     fn delete(&self, conn: &PgConnection) -> Result<User, DieselError> {
         diesel::delete(users_dsl::users.filter(users_dsl::email.eq(&self.email))).get_result(conn)

@@ -18,6 +18,37 @@ mod handler_tests {
 }
 
 #[cfg(test)]
+mod form_tests {
+    use super::establish_connection;
+    use crate::form::*;
+    use crate::model::*;
+
+    #[actix_web::main]
+    #[test]
+    async fn associated_user_returned() {
+        let conn = establish_connection().unwrap();
+        let form = LoginForm {
+            email: "foo@bar.com".to_owned(),
+            password: "password".to_string(),
+        };
+        let usr = form.user(&conn).await.unwrap();
+        assert_eq!(usr.email, form.email);
+    }
+
+    #[actix_web::main]
+    #[test]
+    async fn no_associated_user_returned() {
+        let conn = establish_connection().unwrap();
+        let form = LoginForm {
+            email: "doesnt@exist.com".to_owned(),
+            password: "password".to_string(),
+        };
+        let usr = form.user(&conn).await.unwrap();
+        assert_eq!(&usr.email, "");
+    }
+}
+
+#[cfg(test)]
 mod db_tests {
     use super::establish_connection;
     use crate::db::*;
