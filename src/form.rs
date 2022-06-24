@@ -7,7 +7,7 @@ use crate::model::user::User;
 use crate::schema::events;
 use chrono::{NaiveDate, NaiveDateTime};
 use diesel::pg::PgConnection;
-use diesel::Insertable;
+use diesel::{Connection, Insertable};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone)]
@@ -21,6 +21,7 @@ pub enum AuthError {
 /////// Structs ///////////////////////////////////////////////////////////////////////////////////
 //                                                                                               //
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LoginForm {
     pub email: String,
@@ -47,6 +48,7 @@ pub struct EventForm {
 /////// Implementations ///////////////////////////////////////////////////////////////////////////
 //                                                                                               //
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
 impl fmt::Display for AuthError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
@@ -64,7 +66,11 @@ impl LoginForm {
         }
     }
 
-    pub async fn authenticate(&self, conn: &PgConnection) -> Result<User, AuthError> {
+    /// Check the form instance's password against the associated user object's password
+    pub async fn authenticate<C: Connection>(
+        &self,
+        conn: &PgConnection,
+    ) -> Result<User, AuthError> {
         match self.user(conn).await {
             None => Err(AuthError::EmailNotFound),
             Some(u) => {
@@ -77,6 +83,7 @@ impl LoginForm {
         }
     }
 
+    /// Return the associated user object or None if no user is found
     pub async fn user(&self, conn: &PgConnection) -> Option<User> {
         let usrs = User::query(conn, &self).unwrap();
         if usrs.len() > 0 {
