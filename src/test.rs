@@ -1,5 +1,3 @@
-use super::main;
-use actix_web::HttpServer;
 use diesel::pg::PgConnection;
 use diesel::{Connection, ConnectionError};
 
@@ -10,27 +8,6 @@ fn establish_connection() -> Result<PgConnection, ConnectionError> {
     dotenv().ok();
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set.");
     PgConnection::establish(&database_url)
-}
-
-#[cfg(test)]
-mod handler_tests {
-    use super::main;
-    use crate::db::*;
-    use crate::model::*;
-    use actix_web::web;
-    use reqwest;
-
-    #[actix_web::main]
-    #[test]
-    async fn get_games_handler() {
-        let res = reqwest::get("https://localhost:8305/games")
-            .await
-            .unwrap()
-            .text()
-            .await;
-
-        assert!(res.is_ok());
-    }
 }
 
 #[cfg(test)]

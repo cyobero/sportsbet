@@ -67,10 +67,7 @@ impl LoginForm {
     }
 
     /// Check the form instance's password against the associated user object's password
-    pub async fn authenticate<C: Connection>(
-        &self,
-        conn: &PgConnection,
-    ) -> Result<User, AuthError> {
+    pub async fn authenticate(&self, conn: &PgConnection) -> Result<User, AuthError> {
         match self.user(conn).await {
             None => Err(AuthError::EmailNotFound),
             Some(u) => {
