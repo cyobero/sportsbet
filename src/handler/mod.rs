@@ -6,7 +6,6 @@ use super::DbPool;
 use super::{NBA_TEAMS, NFL_TEAMS};
 use crate::db::{Creatable, Retrievable};
 use actix_web::{get, post, web, HttpRequest, HttpResponse, Responder};
-use diesel::{sql_query, ExpressionMethods, QueryDsl, RunQueryDsl};
 use handlebars::Handlebars;
 use serde_json::json;
 
@@ -31,18 +30,6 @@ async fn get_games(
                 .unwrap();
             HttpResponse::Ok().body(body)
         })
-    //    web::block(move || Game::all(&conn))
-    //.await
-    //.map(|games| {
-    //let body = hb.render("games", &json!({ "games": games })).unwrap();
-    //HttpResponse::Ok().body(body)
-    //})
-    //.map_err(|e| {
-    //let body = hb
-    //.render("games", &json!({"message": e.to_string() }))
-    //.unwrap();
-    //HttpResponse::Ok().body(body)
-    //        })
 }
 
 /// Request handler for posting a new Game from a form
