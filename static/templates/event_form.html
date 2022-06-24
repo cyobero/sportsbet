@@ -9,7 +9,7 @@
         <form method="post">
             <select name="game_id" id="game_id">
                 {{#each games}}
-                <option value={{this.id}}>{{this.home}} vs {{this.away}} (Start: {{this.start}})</option>
+                <option value={{this.id}}>({{this.league}}) {{this.home}} vs {{this.away}} (Start: {{this.start}})</option>
                 {{/each}}
             </select>
             <label for="description">Description</label>

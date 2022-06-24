@@ -1,8 +1,6 @@
 //! Module for proccessing HTTP requests
 use super::DbPool;
-use crate::db::Retrievable;
 use crate::form::LoginForm;
-use crate::model::user::User;
 use handlebars::Handlebars;
 
 use actix_web::{get, post, web, HttpRequest, HttpResponse, Responder};
