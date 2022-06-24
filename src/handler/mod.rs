@@ -1,12 +1,12 @@
 pub mod user;
 
 use super::form::GameForm;
-use super::model::{Event, Game, NewEvent, NewGame};
+use super::model::{Event, Game, GameQuery, League, NewEvent, NewGame};
 use super::DbPool;
+use super::{NBA_TEAMS, NFL_TEAMS};
 use crate::db::{Creatable, Retrievable};
-
-use super::NBA_TEAMS;
 use actix_web::{get, post, web, HttpRequest, HttpResponse, Responder};
+use diesel::{sql_query, ExpressionMethods, QueryDsl, RunQueryDsl};
 use handlebars::Handlebars;
 use serde_json::json;
 
@@ -15,32 +15,47 @@ use serde_json::json;
 async fn get_games(
     pool: web::Data<DbPool>,
     hb: web::Data<Handlebars<'_>>,
+    query: web::Query<GameQuery>,
     _req: HttpRequest,
 ) -> impl Responder {
     let conn = pool.get().expect("Could not get connection.");
-    web::block(move || Game::all(&conn))
+    web::block(move || Game::query(&conn, &query.0))
         .await
         .map(|games| {
             let body = hb.render("games", &json!({ "games": games })).unwrap();
             HttpResponse::Ok().body(body)
         })
-        .map_err(|e| {
+        .map_err(move |e| {
             let body = hb
                 .render("games", &json!({"message": e.to_string() }))
                 .unwrap();
             HttpResponse::Ok().body(body)
         })
+    //    web::block(move || Game::all(&conn))
+    //.await
+    //.map(|games| {
+    //let body = hb.render("games", &json!({ "games": games })).unwrap();
+    //HttpResponse::Ok().body(body)
+    //})
+    //.map_err(|e| {
+    //let body = hb
+    //.render("games", &json!({"message": e.to_string() }))
+    //.unwrap();
+    //HttpResponse::Ok().body(body)
+    //        })
 }
 
 /// Request handler for posting a new Game from a form
-#[post("/games/form")]
+#[post("/games/{league}/form")]
 async fn post_game(
     pool: web::Data<DbPool>,
     hb: web::Data<Handlebars<'_>>,
     form: web::Form<GameForm>,
+    path: web::Path<League>,
 ) -> impl Responder {
     let conn = pool.get().expect("Could not establish connection.");
     let new = NewGame {
+        league: path.0,
         home: form.home.to_owned(),
         away: form.away.to_owned(),
         start: form.start_to_naive(),
@@ -65,11 +80,17 @@ async fn post_game(
 }
 
 /// Request handler for retrieving the form to create a new Game
-#[get("/games/form")]
-async fn games_form(hb: web::Data<Handlebars<'_>>, _req: HttpRequest) -> impl Responder {
-    let body = hb
-        .render("game_form", &json!({ "teams": NBA_TEAMS }))
-        .unwrap();
+#[get("/games/{league}/form")]
+async fn games_form(
+    hb: web::Data<Handlebars<'_>>,
+    _req: HttpRequest,
+    path: web::Path<League>,
+) -> impl Responder {
+    let teams: Vec<(&str, &str)> = match path.0 {
+        League::NBA => NBA_TEAMS.to_vec(),
+        League::NFL => NFL_TEAMS.to_vec(),
+    };
+    let body = hb.render("game_form", &json!({ "teams": teams })).unwrap();
     HttpResponse::Ok().body(body)
 }
 

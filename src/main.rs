@@ -20,8 +20,39 @@ use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
 pub mod exports {
     pub use crate::model::user::RoleMapping as Role;
+    pub use crate::model::LeagueMapping as League;
 }
 pub type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
+
+static NFL_TEAMS: [(&'static str, &'static str); 27] = [
+    ("ATL", "Atlanta Falcons"),
+    ("ARI", "Arizona Cardinals"),
+    ("BAL", "Baltimore Ravens"),
+    ("BUF", "Buffalo Bills"),
+    ("CHI", "Chicago Bears"),
+    ("CIN", "Cincinnati Bengals"),
+    ("CLE", "Cleveland Browns"),
+    ("DAL", "Dallas Cowboys"),
+    ("DEN", "Denver Broncos"),
+    ("DET", "Detroit Lions"),
+    ("GB", "Green Bay Packers"),
+    ("HOU", "Houston Texans"),
+    ("IND", "Indianapolis Colts"),
+    ("JAX", "Jacksonville Jaguars"),
+    ("KC", "Kansas City Chiefs"),
+    ("LAC", "Los Angeles Chargers"),
+    ("LAR", "Los Angeles Rams"),
+    ("MIA", "Miami Dolphins"),
+    ("LV", "Las Vegas Raiders"),
+    ("NE", "New England Patriots"),
+    ("NYG", "New York Giants"),
+    ("NYJ", "New York Jets"),
+    ("PIT", "Pittsburgh Steelers"),
+    ("SEA", "Seattle Seahawks"),
+    ("SF", "San Francisco 49ers"),
+    ("TEN", "Tennessee Titans"),
+    ("WAS", "Washington Commanders"),
+];
 
 static NBA_TEAMS: [(&'static str, &'static str); 30] = [
     ("ATL", "Atlanta Hawks"),

@@ -29,6 +29,7 @@ table! {
 
     games (id) {
         id -> Int4,
+        league -> League,
         home -> Varchar,
         away -> Varchar,
         start -> Timestamp,

@@ -170,6 +170,7 @@ mod db_tests {
         use crate::schema::games::dsl::*;
         let conn = establish_connection().unwrap();
         let new = NewGame {
+            league: League::NBA,
             home: "BOS".to_string(),
             away: "GSW".to_string(),
             start: NaiveDate::from_ymd(2022, 06, 08).and_hms(17, 30, 0),
@@ -217,5 +218,42 @@ mod db_tests {
         )
         .unwrap();
         assert_ne!(res.len(), 0);
+    }
+
+    #[test]
+    fn nba_games_retrieved() {
+        let conn = establish_connection().unwrap();
+
+        let games = Game::query(
+            &conn,
+            &GameQuery {
+                league: Some(League::NBA),
+            },
+        )
+        .unwrap();
+        assert_ne!(games.len(), 0);
+        assert_eq!(games[0].league, League::NBA);
+    }
+
+    #[test]
+    fn nfl_games_retrieved() {
+        let conn = establish_connection().unwrap();
+
+        let games = Game::query(
+            &conn,
+            &GameQuery {
+                league: Some(League::NFL),
+            },
+        )
+        .unwrap();
+        assert_ne!(games.len(), 0);
+        assert_eq!(games[0].league, League::NFL);
+    }
+
+    #[test]
+    fn all_games_retrieved_no_league_input() {
+        let conn = establish_connection().unwrap();
+        let games = Game::query(&conn, &GameQuery { league: None }).unwrap();
+        assert_ne!(games.len(), 0);
     }
 }
