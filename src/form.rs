@@ -8,7 +8,6 @@ use crate::model::user::{AuthedUser, User};
 use crate::schema::events;
 use chrono::{NaiveDate, NaiveDateTime};
 use diesel::pg::PgConnection;
-use diesel::Insertable;
 use diesel::{sql_query, QueryDsl, RunQueryDsl};
 use diesel::{Connection, Insertable};
 use serde::{Deserialize, Serialize};
@@ -17,7 +16,6 @@ use serde::{Deserialize, Serialize};
 pub enum AuthError {
     EmailNotFound,
     IncorrectPassword,
-    Taken,
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -69,25 +67,6 @@ impl Default for AuthedUser {
             password: String::new(),
             role: Role::Punter,
         }
-    }
-}
-
-impl Auth for SignupForm<'_> {
-    type Output = AuthedUser;
-    fn authenticate(&self, conn: &PgConnection) -> Result<AuthedUser, AuthError> {
-        let _stmt = format!(
-            "SELECT email, username, role FROM users WHERE email = '{}' OR username = '{}'",
-            &self.email, &self.username
-        );
-        let res = sql_query(_stmt).get_results::<AuthedUser>(conn);
-        match res {
-            Ok(_) => Err(AuthError::Taken),
-            Err(_) => Ok(AuthedUser::default()),
-        }
-    }
-
-    fn validate(&self, conn: &PgConnection) -> Result<AuthedUser, AuthError> {
-        unimplemented!()
     }
 }
 

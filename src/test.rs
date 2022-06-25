@@ -14,7 +14,6 @@ pub fn establish_connection() -> Result<PgConnection, ConnectionError> {
 mod form_tests {
     use super::establish_connection;
     use crate::form::*;
-<<<<<<< HEAD
 
     #[test]
     fn signup_email_available() {
@@ -38,8 +37,7 @@ mod form_tests {
         };
         let res = dta.authenticate(&conn);
         assert!(res.is_ok())
-=======
-    use crate::model::*;
+    }
 
     #[actix_web::main]
     #[test]
@@ -75,7 +73,6 @@ mod form_tests {
         };
         let usr = form.authenticate(&conn).await.unwrap();
         assert_eq!(usr.password, form.password);
->>>>>>> user
     }
 }
 
