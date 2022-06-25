@@ -8,7 +8,6 @@ use crate::model::user::{AuthedUser, User};
 use crate::schema::events;
 use chrono::{NaiveDate, NaiveDateTime};
 use diesel::pg::PgConnection;
-<<<<<<< HEAD
 use diesel::Insertable;
 use diesel::{sql_query, QueryDsl, RunQueryDsl};
 =======
