@@ -148,3 +148,9 @@ async fn post_event(
             HttpResponse::InternalServerError().body(body)
         })
 }
+
+#[get("/")]
+async fn index(hb: web::Data<Handlebars<'_>>) -> impl Responder {
+    let body = hb.render("index", &json!({})).unwrap();
+    HttpResponse::Ok().body(body)
+}

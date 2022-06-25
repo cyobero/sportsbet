@@ -4,7 +4,7 @@ use crate::schema::users::{self, dsl as users_dsl};
 
 use diesel::pg::PgConnection;
 use diesel::sql_types::{Integer, Varchar};
-use diesel::{sql_query, ExpressionMethods, Insertable, QueryDsl, Queryable, RunQueryDsl};
+use diesel::{ExpressionMethods, Insertable, QueryDsl, Queryable, RunQueryDsl};
 use diesel_derive_enum::DbEnum;
 use serde::{Deserialize, Serialize};
 type DieselError = diesel::result::Error;
@@ -51,6 +51,12 @@ pub struct AuthedUser {
     #[sql_type = "RoleMapping"]
     pub role: Role,
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                               //
+/////// Implementations ///////////////////////////////////////////////////////////////////////////
+//                                                                                               //
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 impl Default for User {
     fn default() -> User {

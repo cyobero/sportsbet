@@ -8,6 +8,7 @@ pub mod model;
 pub mod schema;
 pub mod test;
 
+use actix_files::Files;
 use actix_web::{web, App, HttpServer};
 use diesel::pg::PgConnection;
 use diesel::r2d2::{self, ConnectionManager};
@@ -88,7 +89,7 @@ static NBA_TEAMS: [(&'static str, &'static str); 30] = [
 ];
 
 #[actix_web::main]
-async fn main() -> std::io::Result<()> {
+pub async fn main() -> std::io::Result<()> {
     dotenv().ok();
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set.");
     println!(
@@ -104,6 +105,10 @@ async fn main() -> std::io::Result<()> {
     handlebars
         .register_templates_directory(".html", "./static/templates")
         .unwrap();
+    let styles = r#"
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    "#;
+    handlebars.register_partial("styles", styles).unwrap();
     let handlebars_ref = web::Data::new(handlebars);
 
     let addrress = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), 8305);
@@ -113,6 +118,8 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(handlebars_ref.clone())
             .data(pool.clone())
+            .service(Files::new("/static", "./static"))
+            .service(index)
             .service(get_events)
             .service(event_form)
             .service(post_event)

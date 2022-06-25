@@ -11,13 +11,6 @@ fn establish_connection() -> Result<PgConnection, ConnectionError> {
 }
 
 #[cfg(test)]
-mod handler_tests {
-    use crate::db::*;
-    use crate::model::*;
-    use reqwest;
-}
-
-#[cfg(test)]
 mod form_tests {
     use super::establish_connection;
     use crate::form::*;
