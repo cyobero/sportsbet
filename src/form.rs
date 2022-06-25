@@ -60,7 +60,6 @@ pub struct EventForm {
 /////// Implementations ///////////////////////////////////////////////////////////////////////////
 //                                                                                               //
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-<<<<<<< HEAD
 
 impl Default for AuthedUser {
     fn default() -> Self {
@@ -91,8 +90,6 @@ impl Auth for SignupForm<'_> {
         unimplemented!()
     }
 }
-=======
->>>>>>> user
 
 impl fmt::Display for AuthError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
