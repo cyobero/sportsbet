@@ -1,6 +1,9 @@
 -- Your SQL goes here
+CREATE TYPE league AS ENUM('nba', 'nfl');
+
 CREATE TABLE games (
     id SERIAL PRIMARY KEY,
+    league LEAGUE NOT NULL,
     home VARCHAR(3) NOT NULL,
     away VARCHAR(3) NOT NULL,
     start TIMESTAMP NOT NULL

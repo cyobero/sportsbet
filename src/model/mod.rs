@@ -9,12 +9,21 @@ use diesel::pg::PgConnection;
 use diesel::result::Error as DieselError;
 use diesel::sql_types::{Integer, Timestamp, Varchar};
 use diesel::{sql_query, ExpressionMethods, Insertable, QueryDsl, Queryable, RunQueryDsl};
+use diesel_derive_enum::DbEnum;
 use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Copy, Debug, DbEnum, Deserialize, Serialize, PartialEq)]
+pub enum League {
+    NBA,
+    NFL,
+}
 
 #[derive(Clone, Debug, Deserialize, Serialize, Queryable, QueryableByName)]
 pub struct Game {
     #[sql_type = "Integer"]
     pub id: i32,
+    #[sql_type = "LeagueMapping"]
+    pub league: League,
     #[sql_type = "Varchar"]
     pub home: String,
     #[sql_type = "Varchar"]
@@ -26,6 +35,7 @@ pub struct Game {
 #[derive(Clone, Debug, Deserialize, Serialize, Insertable)]
 #[table_name = "games"]
 pub struct NewGame {
+    pub league: League,
     pub home: String,
     pub away: String,
     pub start: NaiveDateTime,
@@ -54,28 +64,25 @@ pub struct EventQuery {
     pub odds: Option<i32>,
 }
 
-#[derive(Clone, Copy, Serialize)]
+#[derive(Clone, Copy, Serialize, Deserialize)]
 pub struct GameQuery {
-    pub id: Option<i32>,
-    pub year: Option<i32>,
-    pub month: Option<i32>,
-    pub day: Option<i32>,
+    pub league: Option<League>,
 }
 
 impl Default for GameQuery {
     fn default() -> Self {
-        GameQuery {
-            id: None,
-            year: None,
-            month: None,
-            day: None,
-        }
+        GameQuery { league: None }
     }
 }
 
 impl Retrievable<GameQuery> for Game {
-    fn query(conn: &PgConnection, data: &GameQuery) -> Result<Vec<Game>, DieselError> {
-        unimplemented!()
+    fn query(conn: &PgConnection, q: &GameQuery) -> Result<Vec<Game>, DieselError> {
+        let stmt = match q.league {
+            Some(League::NBA) => "SELECT * FROM games WHERE league = 'nba' and id NOT IN (SELECT game_id FROM game_results)",
+            Some(League::NFL) => "SELECT * FROM games WHERE league = 'nfl' and id NOT IN (SELECT game_id FROM game_results)",
+            None => "SELECT * FROM games WHERE id NOT IN (SELECT game_id FROM game_results)"
+        };
+        sql_query(stmt).get_results(conn)
     }
 
     /// Retrieves all games that don't have a result (i.e. don't have a final score)

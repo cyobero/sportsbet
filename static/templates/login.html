@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html>
     <head>
+        {{> styles}}
+        <link rel="stylesheet" href="/static/css/style.css">
         <meta charset="utf-8">
         <title>User Login</title>
     </head>
     <body>
+<<<<<<< HEAD
         <h2>Login</h2>
         <form method="post">
             <label for="email">Email:</label>
@@ -14,6 +17,20 @@
             <input type="submit" value="Login">
         </form>
         <p><small>Don't have an account? <a href="/signup">Signup</a></small></p>
+=======
+        <div class="columns is-centered">
+            <div class="container is-widescreen is-mobile">
+                <form method="post">
+                    <h3 class="title is-3">Login</h3>
+                    <label class="label" for="email">Email:</label>
+                    <input class="input" type="email" id="email" name="email">
+                    <label class="label" for="password">Password:</label>
+                    <input class="input" type="password" id="password" name="password">
+                    <input class="button is-primary" type="submit" value="Login">
+                </form>
+            </div>
+        </div>
+>>>>>>> user
         {{#if message}}
         <p><strong>{{message}}</strong></p>
         {{/if}}

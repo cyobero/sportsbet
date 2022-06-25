@@ -1,13 +1,19 @@
 //! A module for form handling
 
+use std::fmt;
+
 use crate::db::Retrievable;
 use crate::model::user::Role;
 use crate::model::user::{AuthedUser, User};
 use crate::schema::events;
 use chrono::{NaiveDate, NaiveDateTime};
 use diesel::pg::PgConnection;
+<<<<<<< HEAD
 use diesel::Insertable;
 use diesel::{sql_query, QueryDsl, RunQueryDsl};
+=======
+use diesel::{Connection, Insertable};
+>>>>>>> user
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone)]
@@ -17,11 +23,11 @@ pub enum AuthError {
     Taken,
 }
 
-pub trait Auth<C = PgConnection, E = AuthError> {
-    type Output;
-    fn authenticate(&self, conn: &C) -> Result<Self::Output, E>;
-    fn validate(&self, conn: &C) -> Result<Self::Output, E>;
-}
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                               //
+/////// Structs ///////////////////////////////////////////////////////////////////////////////////
+//                                                                                               //
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct SignupForm<'a> {
@@ -57,6 +63,7 @@ pub struct EventForm {
 /////// Implementations ///////////////////////////////////////////////////////////////////////////
 //                                                                                               //
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+<<<<<<< HEAD
 
 impl Default for AuthedUser {
     fn default() -> Self {
@@ -87,31 +94,47 @@ impl Auth for SignupForm<'_> {
         unimplemented!()
     }
 }
+=======
+>>>>>>> user
 
-impl Auth for LoginForm {
-    type Output = User;
-    fn authenticate(&self, conn: &PgConnection) -> Result<User, AuthError> {
-        let res = User::query(conn, &self);
-        match res {
-            Ok(usrs) => match usrs.len() {
-                0 => Err(AuthError::EmailNotFound),
-                _ => Ok(usrs[0].clone()),
-            },
-            Err(_) => Err(AuthError::EmailNotFound),
+impl fmt::Display for AuthError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            AuthError::IncorrectPassword => write!(f, "IncorrectPassword"),
+            AuthError::EmailNotFound => write!(f, "EmailNotFound"),
+        }
+    }
+}
+
+impl LoginForm {
+    pub fn new() -> Self {
+        LoginForm {
+            email: String::new(),
+            password: String::new(),
         }
     }
 
-    fn validate(&self, conn: &PgConnection) -> Result<User, AuthError> {
-        let usr = self.authenticate(conn);
-        match usr {
-            Ok(u) => {
-                if &u.password == &self.password {
+    /// Check the form instance's password against the associated user object's password
+    pub async fn authenticate(&self, conn: &PgConnection) -> Result<User, AuthError> {
+        match self.user(conn).await {
+            None => Err(AuthError::EmailNotFound),
+            Some(u) => {
+                if self.password == u.password {
                     Ok(u)
                 } else {
                     Err(AuthError::IncorrectPassword)
                 }
             }
-            Err(e) => Err(e),
+        }
+    }
+
+    /// Return the associated user object or None if no user is found
+    pub async fn user(&self, conn: &PgConnection) -> Option<User> {
+        let usrs = User::query(conn, &self).unwrap();
+        if usrs.len() > 0 {
+            Some(usrs[0].clone())
+        } else {
+            None
         }
     }
 }

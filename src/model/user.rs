@@ -56,7 +56,23 @@ pub struct AuthedUser {
 //                                                                                               //
 /////// Implementations ///////////////////////////////////////////////////////////////////////////
 //                                                                                               //
+<<<<<<< HEAD
 //////////////////////////////////////////////////////////////////////////////////////////////////
+=======
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+impl Default for User {
+    fn default() -> User {
+        User {
+            id: -1,
+            email: String::new(),
+            username: String::new(),
+            password: String::new(),
+            role: Role::Punter,
+        }
+    }
+}
+>>>>>>> user
 
 impl Deletable for User {
     fn delete(&self, conn: &PgConnection) -> Result<User, DieselError> {
