@@ -1,3 +1,7 @@
+body {
+    font-family: "Roboto Slab";
+}
+
 form {
     padding-top: .5rem;
     padding-left: 1rem;

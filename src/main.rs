@@ -106,6 +106,9 @@ pub async fn main() -> std::io::Result<()> {
         .register_templates_directory(".html", "./static/templates")
         .unwrap();
     let styles = r#"
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Anonymous+Pro&family=Anybody:wght@300;400&family=Arimo&family=Bebas+Neue&family=Fira+Code:wght@300&family=Rubik+Moonrocks&family=Titan+One&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
     "#;
     handlebars.register_partial("styles", styles).unwrap();
