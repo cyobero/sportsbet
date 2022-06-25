@@ -10,9 +10,7 @@ use chrono::{NaiveDate, NaiveDateTime};
 use diesel::pg::PgConnection;
 use diesel::Insertable;
 use diesel::{sql_query, QueryDsl, RunQueryDsl};
-=======
 use diesel::{Connection, Insertable};
->>>>>>> user
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone)]
