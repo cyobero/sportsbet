@@ -25,11 +25,12 @@ pub mod exports {
 }
 pub type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
-static NFL_TEAMS: [(&'static str, &'static str); 27] = [
+static NFL_TEAMS: [(&'static str, &'static str); 31] = [
     ("ATL", "Atlanta Falcons"),
     ("ARI", "Arizona Cardinals"),
     ("BAL", "Baltimore Ravens"),
     ("BUF", "Buffalo Bills"),
+    ("CAR", "Caronlina Panthers"),
     ("CHI", "Chicago Bears"),
     ("CIN", "Cincinnati Bengals"),
     ("CLE", "Cleveland Browns"),
@@ -44,13 +45,16 @@ static NFL_TEAMS: [(&'static str, &'static str); 27] = [
     ("LAC", "Los Angeles Chargers"),
     ("LAR", "Los Angeles Rams"),
     ("MIA", "Miami Dolphins"),
+    ("MIN", "Minnesota Vikings"),
     ("LV", "Las Vegas Raiders"),
     ("NE", "New England Patriots"),
+    ("NO", "New Orleans Saints"),
     ("NYG", "New York Giants"),
     ("NYJ", "New York Jets"),
     ("PIT", "Pittsburgh Steelers"),
     ("SEA", "Seattle Seahawks"),
     ("SF", "San Francisco 49ers"),
+    ("TB", "Tampa Bay Buccaneers"),
     ("TEN", "Tennessee Titans"),
     ("WAS", "Washington Commanders"),
 ];
