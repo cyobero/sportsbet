@@ -4,7 +4,7 @@ use diesel::{Connection, ConnectionError};
 use dotenv::dotenv;
 use std::env;
 
-fn establish_connection() -> Result<PgConnection, ConnectionError> {
+pub fn establish_connection() -> Result<PgConnection, ConnectionError> {
     dotenv().ok();
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set.");
     PgConnection::establish(&database_url)
@@ -14,7 +14,33 @@ fn establish_connection() -> Result<PgConnection, ConnectionError> {
 mod form_tests {
     use super::establish_connection;
     use crate::form::*;
-    use crate::model::*;
+
+    #[test]
+    fn signup_email_available() {
+        let conn = establish_connection().unwrap();
+        let dta = SignupForm {
+            email: "available@email.com".to_owned(),
+            username: "foobars".to_owned(),
+            password1: "password".to_owned(),
+            password2: "password".to_owned(),
+            role: crate::model::user::Role::Punter,
+        };
+    }
+
+    #[actix_web::main]
+    #[test]
+    async fn signup_email_taken() {
+        let conn = establish_connection().unwrap();
+        let dta = SignupForm {
+            email: "foo@bar.com".to_owned(),
+            username: "foobars".to_owned(),
+            password1: "password".to_owned(),
+            password2: "password".to_owned(),
+            role: crate::model::user::Role::Bookie,
+        };
+        let res = dta.authenticate(&conn).await;
+        assert!(res.is_err())
+    }
 
     #[actix_web::main]
     #[test]
@@ -22,7 +48,7 @@ mod form_tests {
         let conn = establish_connection().unwrap();
         let form = LoginForm {
             email: "foo@bar.com".to_owned(),
-            password: "password".to_string(),
+            password: "password".to_owned(),
         };
         let usr = form.user(&conn).await.unwrap();
         assert_eq!(usr.email, "foo@bar.com".to_owned());
@@ -34,7 +60,7 @@ mod form_tests {
         let conn = establish_connection().unwrap();
         let form = LoginForm {
             email: "doesnt@exist.com".to_owned(),
-            password: "password".to_string(),
+            password: "password".to_owned(),
         };
         let usr = form.user(&conn).await;
         assert!(usr.is_none());
@@ -45,7 +71,7 @@ mod form_tests {
     async fn user_authenticated() {
         let conn = establish_connection().unwrap();
         let form = LoginForm {
-            email: "foo@bar.com".to_owned(),
+            email: "foo@bar.com".to_string(),
             password: "password".to_string(),
         };
         let usr = form.authenticate(&conn).await.unwrap();
@@ -199,14 +225,12 @@ mod db_tests {
 
     #[test]
     fn user_queried() {
-        use crate::form::LoginForm;
-        use crate::model::user::User;
+        use crate::model::user::{User, UserQuery};
         let conn = establish_connection().unwrap();
         let res = User::query(
             &conn,
-            &LoginForm {
-                email: "foo@bar.com".to_string(),
-                password: "password".to_string(),
+            &UserQuery {
+                email: "foo@bar.com",
             },
         )
         .unwrap();

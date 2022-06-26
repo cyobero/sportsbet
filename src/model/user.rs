@@ -9,6 +9,8 @@ use diesel_derive_enum::DbEnum;
 use serde::{Deserialize, Serialize};
 type DieselError = diesel::result::Error;
 
+pub trait Form {}
+
 #[derive(Clone, Copy, Debug, DbEnum, Deserialize, Serialize, PartialEq)]
 pub enum Role {
     Bookie,
@@ -39,7 +41,7 @@ pub struct User {
     pub role: Role,
 }
 
-#[derive(Clone, Serialize, Deserialize, QueryableByName)]
+#[derive(Clone, Serialize, Deserialize, Queryable, QueryableByName)]
 #[table_name = "users"]
 pub struct AuthedUser {
     #[sql_type = "Varchar"]
@@ -50,6 +52,11 @@ pub struct AuthedUser {
     pub password: String,
     #[sql_type = "RoleMapping"]
     pub role: Role,
+}
+
+#[derive(Clone, Deserialize, Serialize)]
+pub struct UserQuery<'a> {
+    pub email: &'a str,
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -76,15 +83,15 @@ impl Deletable for User {
     }
 }
 
-impl Retrievable<LoginForm> for User {
-    fn query(conn: &PgConnection, data: &LoginForm) -> Result<Vec<User>, DieselError> {
+impl Retrievable<UserQuery<'_>> for User {
+    fn query(conn: &PgConnection, data: &UserQuery) -> Result<Vec<User>, DieselError> {
         users_dsl::users
             .filter(users_dsl::email.eq(&data.email))
             .get_results(conn)
     }
 
     fn all(conn: &PgConnection) -> Result<Vec<User>, DieselError> {
-        unimplemented!()
+        users_dsl::users.load(conn)
     }
 }
 

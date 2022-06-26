@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {{> styles}}
+        <link rel="stylesheet" href="/static/css/style.css">
+        <meta charset="utf-8">
+        <title>User Signup</title>
+    </head>
+    <body>
+        <div class="container is-widescreen is-mobile">
+            <form method="post">
+                <label class="label" for="email">Email:</label>
+                <input class="input" type="email" id="email" name="email">
+                <label class="label" for="username">Username:</label>
+                <input class="input" type="text" id="username" name="username">
+                <label class="label" for="password">Password:</label>
+                <input class="input" type="password" id="password1" name="password1">
+                <label class="label" for="password">Comfirm password:</label>
+                <input class="input" type="password" id="password2" name="password2">
+
+                <label class="label" for="punter">Punter</label>
+                <input class="radio" id="punter" type="radio" name="role" value="Punter">
+                <label class="label" for="bookie">Bookie</label>
+                <input class="radio" type="radio" name="role" value="Bookie">
+
+                <input class="button is-primary" type="submit" value="Login">
+            </form>
+        </div>
+        {{#if message}}
+        <p><strong>{{message}}</strong></p>
+        {{/if}}
+    </body>
+</html>
