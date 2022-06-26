@@ -6,6 +6,8 @@ form {
     padding-top: .5rem;
     padding-left: 1rem;
     padding-right: 1rem;
+padding-bottom: 1rem;
+    background-color: #0a3d62;
 }
 
 .button.is-primary {
@@ -30,7 +32,6 @@ label {
     margin-left: 1rem;
     margin-right: 1rem;
     padding-bottom: 1rem;
-    background-color: #0a3d62;
 }
 
 .columns.is-centered {
