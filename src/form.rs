@@ -9,7 +9,6 @@ use crate::schema::events;
 use async_trait::async_trait;
 use chrono::{NaiveDate, NaiveDateTime};
 use diesel::pg::PgConnection;
-use diesel::{sql_query, QueryDsl, Queryable, RunQueryDsl};
 use diesel::{Connection, Insertable};
 use serde::{Deserialize, Serialize};
 use std::error;
