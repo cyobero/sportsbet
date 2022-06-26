@@ -4,18 +4,34 @@ use std::fmt;
 
 use crate::db::Retrievable;
 use crate::model::user::Role;
-use crate::model::user::{AuthedUser, User};
+use crate::model::user::{AuthedUser, NewUser, User, UserQuery};
 use crate::schema::events;
+use actix_web::web;
+use async_trait::async_trait;
 use chrono::{NaiveDate, NaiveDateTime};
+use diesel::backend::Backend;
 use diesel::pg::PgConnection;
-use diesel::{sql_query, QueryDsl, RunQueryDsl};
+use diesel::{sql_query, QueryDsl, Queryable, RunQueryDsl};
 use diesel::{Connection, Insertable};
 use serde::{Deserialize, Serialize};
+use std::error;
+
+pub trait Form {}
 
 #[derive(Debug, Clone)]
 pub enum AuthError {
     EmailNotFound,
+    EmailTaken,
     IncorrectPassword,
+}
+
+#[async_trait]
+pub trait Auth<C: Connection, E = AuthError>
+where
+    E: error::Error,
+{
+    type Output;
+    async fn authenticate(&self, conn: &C) -> Result<Self::Output, E>;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -30,6 +46,7 @@ pub struct SignupForm<'a> {
     pub username: &'a str,
     pub password1: &'a str,
     pub password2: &'a str,
+    pub role: Role,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -58,6 +75,35 @@ pub struct EventForm {
 /////// Implementations ///////////////////////////////////////////////////////////////////////////
 //                                                                                               //
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+impl Form for SignupForm<'_> {}
+impl Form for LoginForm {}
+impl error::Error for AuthError {}
+
+impl SignupForm<'_> {
+    pub fn new() -> Self {
+        SignupForm {
+            email: "",
+            username: "",
+            password1: "",
+            password2: "",
+            role: Role::Punter,
+        }
+    }
+
+    pub async fn authenticate(&self, conn: &PgConnection) -> Result<NewUser, AuthError> {
+        let usr = User::query(conn, &UserQuery { email: self.email }).unwrap();
+        if usr.len() > 0 {
+            Err(AuthError::EmailTaken)
+        } else {
+            Ok(NewUser {
+                email: self.email.to_owned(),
+                username: self.username.to_owned(),
+                password: self.password2.to_owned(),
+                role: self.role,
+            })
+        }
+    }
+}
 
 impl Default for AuthedUser {
     fn default() -> Self {
@@ -75,6 +121,7 @@ impl fmt::Display for AuthError {
         match *self {
             AuthError::IncorrectPassword => write!(f, "IncorrectPassword"),
             AuthError::EmailNotFound => write!(f, "EmailNotFound"),
+            AuthError::EmailTaken => write!(f, "EmailTaken"),
         }
     }
 }
@@ -103,7 +150,7 @@ impl LoginForm {
 
     /// Return the associated user object or None if no user is found
     pub async fn user(&self, conn: &PgConnection) -> Option<User> {
-        let usrs = User::query(conn, &self).unwrap();
+        let usrs = User::query(conn, &UserQuery { email: &self.email }).unwrap();
         if usrs.len() > 0 {
             Some(usrs[0].clone())
         } else {

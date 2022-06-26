@@ -23,20 +23,23 @@ mod form_tests {
             username: "foobars",
             password1: "password",
             password2: "password",
+            role: crate::model::user::Role::Punter,
         };
     }
 
+    #[actix_web::main]
     #[test]
-    fn signup_email_taken() {
+    async fn signup_email_taken() {
         let conn = establish_connection().unwrap();
         let dta = SignupForm {
             email: "foo@bar.com",
             username: "foobars",
             password1: "password",
             password2: "password",
+            role: crate::model::user::Role::Bookie,
         };
-        let res = dta.authenticate(&conn);
-        assert!(res.is_ok())
+        let res = dta.authenticate(&conn).await;
+        assert!(res.is_err())
     }
 
     #[actix_web::main]
@@ -45,7 +48,7 @@ mod form_tests {
         let conn = establish_connection().unwrap();
         let form = LoginForm {
             email: "foo@bar.com".to_owned(),
-            password: "password".to_string(),
+            password: "password".to_owned(),
         };
         let usr = form.user(&conn).await.unwrap();
         assert_eq!(usr.email, "foo@bar.com".to_owned());
@@ -57,7 +60,7 @@ mod form_tests {
         let conn = establish_connection().unwrap();
         let form = LoginForm {
             email: "doesnt@exist.com".to_owned(),
-            password: "password".to_string(),
+            password: "password".to_owned(),
         };
         let usr = form.user(&conn).await;
         assert!(usr.is_none());
@@ -68,7 +71,7 @@ mod form_tests {
     async fn user_authenticated() {
         let conn = establish_connection().unwrap();
         let form = LoginForm {
-            email: "foo@bar.com".to_owned(),
+            email: "foo@bar.com".to_string(),
             password: "password".to_string(),
         };
         let usr = form.authenticate(&conn).await.unwrap();
@@ -222,14 +225,12 @@ mod db_tests {
 
     #[test]
     fn user_queried() {
-        use crate::form::LoginForm;
-        use crate::model::user::User;
+        use crate::model::user::{User, UserQuery};
         let conn = establish_connection().unwrap();
         let res = User::query(
             &conn,
-            &LoginForm {
-                email: "foo@bar.com".to_string(),
-                password: "password".to_string(),
+            &UserQuery {
+                email: "foo@bar.com",
             },
         )
         .unwrap();
