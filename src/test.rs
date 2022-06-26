@@ -77,6 +77,22 @@ mod form_tests {
         let usr = form.authenticate(&conn).await.unwrap();
         assert_eq!(usr.password, form.password);
     }
+
+    #[actix_web::main]
+    #[test]
+    async fn password_validated() {
+        use crate::model::user::Role;
+        let conn = establish_connection().unwrap();
+        let form = SignupForm {
+            email: "cyobero@gmail.com".to_string(),
+            username: "cyobero".to_string(),
+            password1: "password123".to_string(),
+            password2: "password123".to_string(),
+            role: Role::Bookie,
+        };
+        let res = form.validate().await;
+        assert!(res.is_ok());
+    }
 }
 
 #[cfg(test)]

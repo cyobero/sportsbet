@@ -22,6 +22,11 @@ pub enum AuthError {
     IncorrectPassword,
 }
 
+#[derive(Debug, Clone)]
+pub enum ValidationError {
+    PasswordMismatch,
+}
+
 #[async_trait]
 pub trait Auth<C: Connection, E = AuthError>
 where
@@ -72,9 +77,17 @@ pub struct EventForm {
 /////// Implementations ///////////////////////////////////////////////////////////////////////////
 //                                                                                               //
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+impl fmt::Display for ValidationError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            ValidationError::PasswordMismatch => write!(f, "PasswordMismatch"),
+        }
+    }
+}
 impl Form for SignupForm {}
 impl Form for LoginForm {}
 impl error::Error for AuthError {}
+impl error::Error for ValidationError {}
 
 impl SignupForm {
     pub fn new() -> Self {
@@ -84,6 +97,20 @@ impl SignupForm {
             password1: String::new(),
             password2: String::new(),
             role: Role::Punter,
+        }
+    }
+
+    /// Validates form by checking if passwords match
+    pub async fn validate(&self) -> Result<NewUser, impl error::Error> {
+        if &self.password2 == &self.password1 {
+            Ok(NewUser {
+                email: self.email.to_owned(),
+                username: self.username.to_owned(),
+                password: self.password2.to_owned(),
+                role: self.role,
+            })
+        } else {
+            Err(ValidationError::PasswordMismatch)
         }
     }
 
