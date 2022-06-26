@@ -19,10 +19,10 @@ mod form_tests {
     fn signup_email_available() {
         let conn = establish_connection().unwrap();
         let dta = SignupForm {
-            email: "available@email.com",
-            username: "foobars",
-            password1: "password",
-            password2: "password",
+            email: "available@email.com".to_owned(),
+            username: "foobars".to_owned(),
+            password1: "password".to_owned(),
+            password2: "password".to_owned(),
             role: crate::model::user::Role::Punter,
         };
     }
@@ -32,10 +32,10 @@ mod form_tests {
     async fn signup_email_taken() {
         let conn = establish_connection().unwrap();
         let dta = SignupForm {
-            email: "foo@bar.com",
-            username: "foobars",
-            password1: "password",
-            password2: "password",
+            email: "foo@bar.com".to_owned(),
+            username: "foobars".to_owned(),
+            password1: "password".to_owned(),
+            password2: "password".to_owned(),
             role: crate::model::user::Role::Bookie,
         };
         let res = dta.authenticate(&conn).await;

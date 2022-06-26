@@ -6,10 +6,8 @@ use crate::db::Retrievable;
 use crate::model::user::Role;
 use crate::model::user::{AuthedUser, NewUser, User, UserQuery};
 use crate::schema::events;
-use actix_web::web;
 use async_trait::async_trait;
 use chrono::{NaiveDate, NaiveDateTime};
-use diesel::backend::Backend;
 use diesel::pg::PgConnection;
 use diesel::{sql_query, QueryDsl, Queryable, RunQueryDsl};
 use diesel::{Connection, Insertable};
@@ -41,11 +39,11 @@ where
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct SignupForm<'a> {
-    pub email: &'a str,
-    pub username: &'a str,
-    pub password1: &'a str,
-    pub password2: &'a str,
+pub struct SignupForm {
+    pub email: String,
+    pub username: String,
+    pub password1: String,
+    pub password2: String,
     pub role: Role,
 }
 
@@ -75,23 +73,23 @@ pub struct EventForm {
 /////// Implementations ///////////////////////////////////////////////////////////////////////////
 //                                                                                               //
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-impl Form for SignupForm<'_> {}
+impl Form for SignupForm {}
 impl Form for LoginForm {}
 impl error::Error for AuthError {}
 
-impl SignupForm<'_> {
+impl SignupForm {
     pub fn new() -> Self {
         SignupForm {
-            email: "",
-            username: "",
-            password1: "",
-            password2: "",
+            email: String::new(),
+            username: String::new(),
+            password1: String::new(),
+            password2: String::new(),
             role: Role::Punter,
         }
     }
 
     pub async fn authenticate(&self, conn: &PgConnection) -> Result<NewUser, AuthError> {
-        let usr = User::query(conn, &UserQuery { email: self.email }).unwrap();
+        let usr = User::query(conn, &UserQuery { email: &self.email }).unwrap();
         if usr.len() > 0 {
             Err(AuthError::EmailTaken)
         } else {

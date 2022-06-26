@@ -129,6 +129,7 @@ pub async fn main() -> std::io::Result<()> {
             .service(user::login_form)
             .service(user::login)
             .service(user::signup_form)
+            .service(user::signup)
     })
     .bind(addrress)?
     .run()
