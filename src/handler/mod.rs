@@ -17,19 +17,21 @@ async fn get_games(
     query: web::Query<GameQuery>,
     _req: HttpRequest,
 ) -> impl Responder {
-    let conn = pool.get().expect("Could not get connection.");
-    web::block(move || Game::query(&conn, &query.0))
-        .await
-        .map(|games| {
-            let body = hb.render("games", &json!({ "games": games })).unwrap();
-            HttpResponse::Ok().body(body)
-        })
-        .map_err(move |e| {
-            let body = hb
-                .render("games", &json!({"message": e.to_string() }))
-                .unwrap();
-            HttpResponse::Ok().body(body)
-        })
+    web::block(move || {
+        let conn = pool.get().expect("Could not establish connection.");
+        Game::query(&conn, &query.0)
+    })
+    .await
+    .map(|games| {
+        let body = hb.render("games", &json!({ "games": games })).unwrap();
+        HttpResponse::Ok().body(body)
+    })
+    .map_err(|e| {
+        let body = hb
+            .render("games", &json!({"message": e.to_string() }))
+            .unwrap();
+        HttpResponse::Ok().body(body)
+    })
 }
 
 /// Request handler for posting a new Game from a form

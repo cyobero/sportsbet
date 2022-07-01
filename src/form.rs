@@ -1,4 +1,4 @@
-//! A module for form handling
+//! A module for form andling
 
 use std::fmt;
 
@@ -101,28 +101,23 @@ impl SignupForm {
     }
 
     /// Validates form by checking if passwords match
-    pub async fn validate(&self) -> Result<NewUser, impl error::Error> {
+    pub fn validate(self) -> Result<Self, impl error::Error> {
         if &self.password2 == &self.password1 {
-            Ok(NewUser {
-                email: self.email.to_owned(),
-                username: self.username.to_owned(),
-                password: self.password2.to_owned(),
-                role: self.role,
-            })
+            Ok(self)
         } else {
             Err(ValidationError::PasswordMismatch)
         }
     }
 
-    pub async fn authenticate(&self, conn: &PgConnection) -> Result<NewUser, AuthError> {
+    pub fn authenticate(self, conn: &PgConnection) -> Result<NewUser, AuthError> {
         let usr = User::query(conn, &UserQuery { email: &self.email }).unwrap();
         if usr.len() > 0 {
             Err(AuthError::EmailTaken)
         } else {
             Ok(NewUser {
-                email: self.email.to_owned(),
-                username: self.username.to_owned(),
-                password: self.password2.to_owned(),
+                email: self.email,
+                username: self.username,
+                password: self.password2,
                 role: self.role,
             })
         }

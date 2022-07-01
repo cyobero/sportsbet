@@ -1,5 +1,6 @@
 //! Module for proccessing HTTP requests
 use super::DbPool;
+use crate::db::Creatable;
 use crate::form::{LoginForm, SignupForm};
 use handlebars::Handlebars;
 
@@ -13,14 +14,20 @@ async fn signup(
     form: web::Form<SignupForm>,
     _req: HttpRequest,
 ) -> impl Responder {
-    let conn = pool.get().expect("Could not get connection");
-    let res = form.authenticate(&conn).await;
-    match res {
+    web::block(move || {
+        let conn = pool.get().expect("Could not establish connection.");
+        //let valid = form.0.validate().unwrap();
+        form.0
+            .validate()
+            .map(|f| f.authenticate(&conn).map(|nu| nu.create(&conn)))
+    })
+    .await
+    .map(|f| match f {
         Ok(_) => {
             let body = hb
                 .render(
-                    "success",
-                    &json!({"message": "new user created", "redirect": "/"}),
+                    "sucecss",
+                    &json!({"message": "successfuly created", "redirect": "/"}),
                 )
                 .unwrap();
             HttpResponse::Ok().body(body)
@@ -31,7 +38,13 @@ async fn signup(
                 .unwrap();
             HttpResponse::Ok().body(body)
         }
-    }
+    })
+    .map_err(|e| {
+        let body = hb
+            .render("signup", &json!({"message": e.to_string() }))
+            .unwrap();
+        HttpResponse::Ok().body(body)
+    })
 }
 
 #[get("/signup")]
