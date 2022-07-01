@@ -66,16 +66,15 @@ mod form_tests {
         assert!(usr.is_none());
     }
 
-    #[actix_web::main]
     #[test]
-    async fn user_authenticated() {
+    fn user_authenticated() {
         let conn = establish_connection().unwrap();
         let form = LoginForm {
             email: "foo@bar.com".to_string(),
             password: "password".to_string(),
         };
-        let usr = form.authenticate(&conn).await.unwrap();
-        assert_eq!(usr.password, form.password);
+        let usr = form.authenticate(&conn);
+        assert!(usr.is_ok())
     }
 
     #[test]

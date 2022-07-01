@@ -154,16 +154,14 @@ impl LoginForm {
     }
 
     /// Check the form instance's password against the associated user object's password
-    pub async fn authenticate(&self, conn: &PgConnection) -> Result<User, AuthError> {
-        match self.user(conn).await {
-            None => Err(AuthError::EmailNotFound),
-            Some(u) => {
-                if self.password == u.password {
-                    Ok(u)
-                } else {
-                    Err(AuthError::IncorrectPassword)
-                }
-            }
+    pub fn authenticate(self, conn: &PgConnection) -> Result<User, AuthError> {
+        let usrs = User::query(&conn, &UserQuery { email: &self.email }).unwrap();
+        match usrs.len() {
+            0 => Err(AuthError::EmailNotFound),
+            _ => match &usrs[0].password == &self.password {
+                true => Ok(usrs[0].clone()),
+                false => Err(AuthError::IncorrectPassword),
+            },
         }
     }
 
