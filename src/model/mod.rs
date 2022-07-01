@@ -69,6 +69,15 @@ pub struct GameQuery {
     pub league: Option<League>,
 }
 
+impl ToString for League {
+    fn to_string(&self) -> String {
+        match self {
+            League::NBA => "NBA".to_string(),
+            League::NFL => "NFL".to_string(),
+        }
+    }
+}
+
 impl Default for GameQuery {
     fn default() -> Self {
         GameQuery { league: None }

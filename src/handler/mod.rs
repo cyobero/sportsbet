@@ -42,30 +42,32 @@ async fn post_game(
     form: web::Form<GameForm>,
     path: web::Path<League>,
 ) -> impl Responder {
-    let conn = pool.get().expect("Could not establish connection.");
-    let new = NewGame {
-        league: path.0,
-        home: form.home.to_owned(),
-        away: form.away.to_owned(),
-        start: form.start_to_naive(),
-    };
-    web::block(move || new.create(&conn))
-        .await
-        .map(|_| {
-            let body = hb
-                .render(
-                    "success",
-                    &json!({"message": "New game created", "redirect": "/games/form" }),
-                )
-                .unwrap();
-            HttpResponse::Ok().body(body)
-        })
-        .map_err(|e| {
-            let body = hb
-                .render("game_form", &json!({"message": e.to_string() }))
-                .unwrap();
-            HttpResponse::InternalServerError().body(body)
-        })
+    web::block(move || {
+        let conn = pool.get().expect("Could not establish connection.");
+        let new = NewGame {
+            league: path.0,
+            home: form.home.to_string(),
+            away: form.away.to_owned(),
+            start: form.start_to_naive(),
+        };
+        new.create(&conn)
+    })
+    .await
+    .map(|_| {
+        let body = hb
+            .render(
+                "success",
+                &json!({"message": "new game created", "redirect": "/games" }),
+            )
+            .unwrap();
+        HttpResponse::Ok().body(body)
+    })
+    .map_err(|e| {
+        let body = hb
+            .render("game_form", &json!({"message": e.to_string() }))
+            .unwrap();
+        HttpResponse::Ok().body(body)
+    })
 }
 
 /// Request handler for retrieving the form to create a new Game
@@ -86,19 +88,21 @@ async fn games_form(
 /// Request handler for retrieving all Events
 #[get("/events")]
 async fn get_events(hb: web::Data<Handlebars<'_>>, pool: web::Data<DbPool>) -> impl Responder {
-    let conn = pool.get().expect("Could not establish connection");
-    web::block(move || Event::all(&conn))
-        .await
-        .map(|evts| {
-            let body = hb.render("events", &json!({ "events": evts })).unwrap();
-            HttpResponse::Ok().body(body)
-        })
-        .map_err(|e| {
-            let body = hb
-                .render("events", &json!({"message": e.to_string() }))
-                .unwrap();
-            HttpResponse::Ok().body(body)
-        })
+    web::block(move || {
+        let conn = pool.get().expect("Could not establish connection.");
+        Event::all(&conn)
+    })
+    .await
+    .map(|events| {
+        let body = hb.render("events", &json!({ "events": events })).unwrap();
+        HttpResponse::Ok().body(body)
+    })
+    .map_err(|e| {
+        let body = hb
+            .render("events", &json!({"message": e.to_string() }))
+            .unwrap();
+        HttpResponse::Ok().body(body)
+    })
 }
 
 /// Request handler for getting a form for creating a new Event
