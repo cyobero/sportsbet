@@ -26,7 +26,7 @@ async fn signup(
         Ok(_) => {
             let body = hb
                 .render(
-                    "sucecss",
+                    "success",
                     &json!({"message": "successfuly created", "redirect": "/"}),
                 )
                 .unwrap();

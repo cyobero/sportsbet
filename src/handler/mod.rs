@@ -131,24 +131,26 @@ async fn post_event(
     form: web::Form<NewEvent>,
     _req: HttpRequest,
 ) -> impl Responder {
-    let conn = pool.get().expect("Could not establish connection.");
-    web::block(move || form.0.create(&conn))
-        .await
-        .map(|_| {
-            let body = hb
-                .render(
-                    "success",
-                    &json!({"message": "New Event created.", "redirect": "/events/form" }),
-                )
-                .unwrap();
-            HttpResponse::Ok().body(body)
-        })
-        .map_err(|e| {
-            let body = hb
-                .render("event_form", &json!({"message": e.to_string() }))
-                .unwrap();
-            HttpResponse::InternalServerError().body(body)
-        })
+    web::block(move || {
+        let conn = pool.get().expect("Could not establish connection.");
+        form.0.create(&conn)
+    })
+    .await
+    .map(|_| {
+        let body = hb
+            .render(
+                "success",
+                &json!({"message": "Successfully created!", "redirect": "/events" }),
+            )
+            .unwrap();
+        HttpResponse::Ok().body(body)
+    })
+    .map_err(|e| {
+        let body = hb
+            .render("event_form", &json!({"message": e.to_string() }))
+            .unwrap();
+        HttpResponse::Ok().body(body)
+    })
 }
 
 #[get("/")]
