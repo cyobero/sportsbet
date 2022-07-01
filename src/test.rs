@@ -38,7 +38,7 @@ mod form_tests {
             password2: "password".to_owned(),
             role: crate::model::user::Role::Bookie,
         };
-        let res = dta.authenticate(&conn).await;
+        let res = dta.authenticate(&conn);
         assert!(res.is_err())
     }
 
@@ -78,11 +78,9 @@ mod form_tests {
         assert_eq!(usr.password, form.password);
     }
 
-    #[actix_web::main]
     #[test]
-    async fn password_validated() {
+    fn password_validated() {
         use crate::model::user::Role;
-        let conn = establish_connection().unwrap();
         let form = SignupForm {
             email: "cyobero@gmail.com".to_string(),
             username: "cyobero".to_string(),
@@ -90,7 +88,7 @@ mod form_tests {
             password2: "password123".to_string(),
             role: Role::Bookie,
         };
-        let res = form.validate().await;
+        let res = form.validate();
         assert!(res.is_ok());
     }
 }
