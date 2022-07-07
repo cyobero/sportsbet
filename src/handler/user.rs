@@ -16,9 +16,10 @@ async fn signup(
 ) -> impl Responder {
     web::block(move || {
         let conn = pool.get().expect("Could not establish connection.");
-        form.0
-            .validate()
-            .map(|f| f.authenticate(&conn).map(|nu| nu.create(&conn)))
+        form.0.validate().map(|f| {
+            f.authenticate(&conn)
+                .map(|nu| nu.create(&conn).map(|u| u.login(&conn)))
+        })
     })
     .await
     .map(|f| match f {
