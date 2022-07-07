@@ -1,5 +1,6 @@
 use crate::db::{Creatable, Deletable, Retrievable};
 use crate::form::LoginForm;
+use crate::model::session::NewSession;
 use crate::schema::users::{self, dsl as users_dsl};
 
 use diesel::pg::PgConnection;
@@ -71,8 +72,9 @@ impl User {
         User::default()
     }
 
-    pub fn create_session(&self, conn: &PgConnection) -> io::Result<()> {
-        unimplemented!()
+    pub fn login(&self, conn: &PgConnection) -> Result<(), DieselError> {
+        let _ = NewSession::new(&self).create(conn);
+        Ok(())
     }
 }
 

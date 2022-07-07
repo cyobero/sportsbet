@@ -60,7 +60,7 @@ async fn login(
 ) -> impl Responder {
     web::block(move || {
         let conn = pool.get().expect("Could not establish connection.");
-        form.0.authenticate(&conn)
+        form.0.authenticate(&conn).map(|u| u.login(&conn))
     })
     .await
     .map(|_| {

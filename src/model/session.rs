@@ -1,6 +1,7 @@
 use crate::db::*;
+use crate::model::user::User;
 use crate::schema::sessions::{self, dsl as sessions_dsl};
-use chrono::NaiveDateTime;
+use chrono::{NaiveDateTime, Utc};
 use diesel::pg::PgConnection;
 use diesel::result::Error as DieselError;
 use diesel::{ExpressionMethods, Insertable, Queryable, RunQueryDsl};
@@ -27,6 +28,35 @@ impl Updatable for Session {
             .filter(sessions_dsl::id.eq(&self.id))
             .set(sessions_dsl::logout_date.eq(&self.logout_date))
             .get_result(conn)
+    }
+}
+
+impl Default for Session {
+    fn default() -> Session {
+        Session {
+            id: -1,
+            user_id: -1,
+            login_date: Utc::now().naive_utc(),
+            logout_date: None,
+        }
+    }
+}
+
+impl Default for NewSession {
+    fn default() -> NewSession {
+        NewSession {
+            user_id: -1,
+            logout_date: None,
+        }
+    }
+}
+
+impl NewSession {
+    pub fn new(user: &User) -> Self {
+        NewSession {
+            user_id: user.id,
+            logout_date: None,
+        }
     }
 }
 
