@@ -30,12 +30,12 @@ where
 
 /// Trait for deleting records
 pub trait Deletable<Output = Self, Conn = PgConnection, E = DieselError> {
-    fn delete(&self, conn: &PgConnection) -> Result<Output, E>;
+    fn delete(&self, conn: &Conn) -> Result<Output, E>;
 }
 
 /// Trait for updating records
-pub trait Updatable<Output = Self, E = DieselError> {
+pub trait Updatable<Conn = PgConnection, Output = Self, E = DieselError> {
     /// Update the instance's corresponding db record. The updated struct is returned upon
     /// successful method call.
-    fn update(&self) -> Result<Output, E>;
+    fn update(&self, conn: &Conn) -> Result<Output, E>;
 }

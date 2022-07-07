@@ -310,4 +310,29 @@ mod db_tests {
         assert_eq!(ses.user_id, usr.id);
         let _ = ses.delete(&conn);
     }
+
+    #[test]
+    fn session_updated() {
+        use crate::model::session::*;
+        use chrono::Utc;
+        let conn = establish_connection().unwrap();
+        let usr = User::query(
+            &conn,
+            &UserQuery {
+                email: "foo@bar.com",
+                username: "",
+            },
+        )
+        .map(|usrs| usrs[0].clone())
+        .unwrap();
+        let new = NewSession {
+            user_id: usr.id,
+            logout_date: None,
+        };
+        let mut sess = new.create(&conn).unwrap();
+        sess.logout_date = Some(Utc::now().naive_utc());
+        let res = sess.update(&conn).unwrap();
+        assert_ne!(res.logout_date, None);
+        let _ = res.delete(&conn);
+    }
 }

@@ -21,6 +21,15 @@ pub struct NewSession {
     pub logout_date: Option<NaiveDateTime>,
 }
 
+impl Updatable for Session {
+    fn update(&self, conn: &PgConnection) -> Result<Session, DieselError> {
+        diesel::update(sessions_dsl::sessions)
+            .filter(sessions_dsl::id.eq(&self.id))
+            .set(sessions_dsl::logout_date.eq(&self.logout_date))
+            .get_result(conn)
+    }
+}
+
 impl Deletable for Session {
     fn delete(&self, conn: &PgConnection) -> Result<Session, DieselError> {
         diesel::delete(sessions_dsl::sessions)
