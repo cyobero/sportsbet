@@ -7,6 +7,7 @@ use diesel::sql_types::{Integer, Varchar};
 use diesel::{sql_query, ExpressionMethods, Insertable, QueryDsl, Queryable, RunQueryDsl};
 use diesel_derive_enum::DbEnum;
 use serde::{Deserialize, Serialize};
+use std::io;
 type DieselError = diesel::result::Error;
 
 pub trait Form {}
@@ -65,6 +66,15 @@ pub struct UserQuery<'a> {
 /////// Implementations ///////////////////////////////////////////////////////////////////////////
 //                                                                                               //
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+impl User {
+    pub fn new() -> Self {
+        User::default()
+    }
+
+    pub fn create_session(&self, conn: &PgConnection) -> io::Result<()> {
+        unimplemented!()
+    }
+}
 
 impl Default for User {
     fn default() -> User {
