@@ -244,6 +244,7 @@ mod db_tests {
             &conn,
             &UserQuery {
                 email: "foo@bar.com",
+                username: "foobars",
             },
         )
         .unwrap();

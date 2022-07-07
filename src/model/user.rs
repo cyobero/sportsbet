@@ -4,7 +4,7 @@ use crate::schema::users::{self, dsl as users_dsl};
 
 use diesel::pg::PgConnection;
 use diesel::sql_types::{Integer, Varchar};
-use diesel::{ExpressionMethods, Insertable, QueryDsl, Queryable, RunQueryDsl};
+use diesel::{sql_query, ExpressionMethods, Insertable, QueryDsl, Queryable, RunQueryDsl};
 use diesel_derive_enum::DbEnum;
 use serde::{Deserialize, Serialize};
 type DieselError = diesel::result::Error;
@@ -57,6 +57,7 @@ pub struct AuthedUser {
 #[derive(Clone, Deserialize, Serialize)]
 pub struct UserQuery<'a> {
     pub email: &'a str,
+    pub username: &'a str,
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -85,9 +86,11 @@ impl Deletable for User {
 
 impl Retrievable<UserQuery<'_>> for User {
     fn query(conn: &PgConnection, data: &UserQuery) -> Result<Vec<User>, DieselError> {
-        users_dsl::users
-            .filter(users_dsl::email.eq(&data.email))
-            .get_results(conn)
+        let stmt = format!(
+            "SELECT * FROM users WHERE email = '{}' or username ='{}'",
+            data.email, data.username
+        );
+        sql_query(stmt).load(conn)
     }
 
     fn all(conn: &PgConnection) -> Result<Vec<User>, DieselError> {

@@ -110,7 +110,14 @@ impl SignupForm {
     }
 
     pub fn authenticate(self, conn: &PgConnection) -> Result<NewUser, AuthError> {
-        let usr = User::query(conn, &UserQuery { email: &self.email }).unwrap();
+        let usr = User::query(
+            conn,
+            &UserQuery {
+                email: &self.email,
+                username: &self.username,
+            },
+        )
+        .unwrap();
         if usr.len() > 0 {
             Err(AuthError::EmailTaken)
         } else {
@@ -155,7 +162,14 @@ impl LoginForm {
 
     /// Check the form instance's password against the associated user object's password
     pub fn authenticate(self, conn: &PgConnection) -> Result<User, AuthError> {
-        let usrs = User::query(&conn, &UserQuery { email: &self.email }).unwrap();
+        let usrs = User::query(
+            &conn,
+            &UserQuery {
+                email: &self.email,
+                username: "",
+            },
+        )
+        .unwrap();
         match usrs.len() {
             0 => Err(AuthError::EmailNotFound),
             _ => match &usrs[0].password == &self.password {
@@ -167,7 +181,14 @@ impl LoginForm {
 
     /// Return the associated user object or None if no user is found
     pub async fn user(&self, conn: &PgConnection) -> Option<User> {
-        let usrs = User::query(conn, &UserQuery { email: &self.email }).unwrap();
+        let usrs = User::query(
+            conn,
+            &UserQuery {
+                email: &self.email,
+                username: "",
+            },
+        )
+        .unwrap();
         if usrs.len() > 0 {
             Some(usrs[0].clone())
         } else {
