@@ -8,6 +8,7 @@ pub mod model;
 pub mod schema;
 pub mod test;
 
+use actix_files::Files;
 use actix_web::{web, App, HttpServer};
 use diesel::pg::PgConnection;
 use diesel::r2d2::{self, ConnectionManager};
@@ -20,8 +21,43 @@ use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
 pub mod exports {
     pub use crate::model::user::RoleMapping as Role;
+    pub use crate::model::LeagueMapping as League;
 }
 pub type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
+
+static NFL_TEAMS: [(&'static str, &'static str); 31] = [
+    ("ATL", "Atlanta Falcons"),
+    ("ARI", "Arizona Cardinals"),
+    ("BAL", "Baltimore Ravens"),
+    ("BUF", "Buffalo Bills"),
+    ("CAR", "Caronlina Panthers"),
+    ("CHI", "Chicago Bears"),
+    ("CIN", "Cincinnati Bengals"),
+    ("CLE", "Cleveland Browns"),
+    ("DAL", "Dallas Cowboys"),
+    ("DEN", "Denver Broncos"),
+    ("DET", "Detroit Lions"),
+    ("GB", "Green Bay Packers"),
+    ("HOU", "Houston Texans"),
+    ("IND", "Indianapolis Colts"),
+    ("JAX", "Jacksonville Jaguars"),
+    ("KC", "Kansas City Chiefs"),
+    ("LAC", "Los Angeles Chargers"),
+    ("LAR", "Los Angeles Rams"),
+    ("MIA", "Miami Dolphins"),
+    ("MIN", "Minnesota Vikings"),
+    ("LV", "Las Vegas Raiders"),
+    ("NE", "New England Patriots"),
+    ("NO", "New Orleans Saints"),
+    ("NYG", "New York Giants"),
+    ("NYJ", "New York Jets"),
+    ("PIT", "Pittsburgh Steelers"),
+    ("SEA", "Seattle Seahawks"),
+    ("SF", "San Francisco 49ers"),
+    ("TB", "Tampa Bay Buccaneers"),
+    ("TEN", "Tennessee Titans"),
+    ("WAS", "Washington Commanders"),
+];
 
 static NBA_TEAMS: [(&'static str, &'static str); 30] = [
     ("ATL", "Atlanta Hawks"),
@@ -57,7 +93,7 @@ static NBA_TEAMS: [(&'static str, &'static str); 30] = [
 ];
 
 #[actix_web::main]
-async fn main() -> std::io::Result<()> {
+pub async fn main() -> std::io::Result<()> {
     dotenv().ok();
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set.");
     println!(
@@ -73,6 +109,13 @@ async fn main() -> std::io::Result<()> {
     handlebars
         .register_templates_directory(".html", "./static/templates")
         .unwrap();
+    let styles = r#"
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Anonymous+Pro&family=Anybody:wght@300;400&family=Arimo&family=Bebas+Neue&family=Fira+Code:wght@300&family=Rubik+Moonrocks&family=Titan+One&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    "#;
+    handlebars.register_partial("styles", styles).unwrap();
     let handlebars_ref = web::Data::new(handlebars);
 
     let addrress = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), 8305);
@@ -82,6 +125,8 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(handlebars_ref.clone())
             .data(pool.clone())
+            .service(Files::new("/static", "./static"))
+            .service(index)
             .service(get_events)
             .service(event_form)
             .service(post_event)
@@ -91,6 +136,7 @@ async fn main() -> std::io::Result<()> {
             .service(user::login_form)
             .service(user::login)
             .service(user::signup_form)
+            .service(user::signup)
     })
     .bind(addrress)?
     .run()

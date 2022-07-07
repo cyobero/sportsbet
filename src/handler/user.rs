@@ -1,10 +1,50 @@
 //! Module for proccessing HTTP requests
 use super::DbPool;
-use crate::form::{Auth, LoginForm};
+use crate::db::Creatable;
+use crate::form::{LoginForm, SignupForm};
 use handlebars::Handlebars;
 
 use actix_web::{get, post, web, HttpRequest, HttpResponse, Responder};
 use serde_json::json;
+
+#[post("/signup")]
+async fn signup(
+    pool: web::Data<DbPool>,
+    hb: web::Data<Handlebars<'_>>,
+    form: web::Form<SignupForm>,
+    _req: HttpRequest,
+) -> impl Responder {
+    web::block(move || {
+        let conn = pool.get().expect("Could not establish connection.");
+        form.0
+            .validate()
+            .map(|f| f.authenticate(&conn).map(|nu| nu.create(&conn)))
+    })
+    .await
+    .map(|f| match f {
+        Ok(_) => {
+            let body = hb
+                .render(
+                    "success",
+                    &json!({"message": "successfuly created", "redirect": "/"}),
+                )
+                .unwrap();
+            HttpResponse::Ok().body(body)
+        }
+        Err(e) => {
+            let body = hb
+                .render("signup", &json!({"message": e.to_string() }))
+                .unwrap();
+            HttpResponse::Ok().body(body)
+        }
+    })
+    .map_err(|e| {
+        let body = hb
+            .render("signup", &json!({"message": e.to_string() }))
+            .unwrap();
+        HttpResponse::Ok().body(body)
+    })
+}
 
 #[get("/signup")]
 async fn signup_form(hb: web::Data<Handlebars<'_>>, _req: HttpRequest) -> impl Responder {
@@ -15,27 +55,29 @@ async fn signup_form(hb: web::Data<Handlebars<'_>>, _req: HttpRequest) -> impl R
 #[post("/login")]
 async fn login(
     pool: web::Data<DbPool>,
-    hb: web::Data<Handlebars<'_>>,
     form: web::Form<LoginForm>,
+    hb: web::Data<Handlebars<'_>>,
 ) -> impl Responder {
-    let conn = pool.get().expect("Could not get connection.");
-    web::block(move || form.0.validate(&conn))
-        .await
-        .map(|_| {
-            let body = hb
-                .render(
-                    "success",
-                    &json!({"message": "login succesful", "redirect": "/events "}),
-                )
-                .unwrap();
-            HttpResponse::Ok().body(body)
-        })
-        .map_err(|e| {
-            let body = hb
-                .render("login", &json!({"message": e.to_string() }))
-                .unwrap();
-            HttpResponse::Ok().body(body)
-        })
+    web::block(move || {
+        let conn = pool.get().expect("Could not establish connection.");
+        form.0.authenticate(&conn)
+    })
+    .await
+    .map(|_| {
+        let body = hb
+            .render(
+                "success",
+                &json!({"message": "login successful", "redirect": "/" }),
+            )
+            .unwrap();
+        HttpResponse::Ok().body(body)
+    })
+    .map_err(|e| {
+        let body = hb
+            .render("login", &json!({"message": e.to_string() }))
+            .unwrap();
+        HttpResponse::Ok().body(body)
+    })
 }
 
 #[get("/login")]

@@ -19,24 +19,76 @@ mod form_tests {
     fn signup_email_available() {
         let conn = establish_connection().unwrap();
         let dta = SignupForm {
-            email: "available@email.com",
-            username: "foobars",
-            password1: "password",
-            password2: "password",
+            email: "available@email.com".to_owned(),
+            username: "foobars".to_owned(),
+            password1: "password".to_owned(),
+            password2: "password".to_owned(),
+            role: crate::model::user::Role::Punter,
         };
     }
 
+    #[actix_web::main]
     #[test]
-    fn signup_email_taken() {
+    async fn signup_email_taken() {
         let conn = establish_connection().unwrap();
         let dta = SignupForm {
-            email: "foo@bar.com",
-            username: "foobars",
-            password1: "password",
-            password2: "password",
+            email: "foo@bar.com".to_owned(),
+            username: "foobars".to_owned(),
+            password1: "password".to_owned(),
+            password2: "password".to_owned(),
+            role: crate::model::user::Role::Bookie,
         };
         let res = dta.authenticate(&conn);
-        assert!(res.is_ok())
+        assert!(res.is_err())
+    }
+
+    #[actix_web::main]
+    #[test]
+    async fn associated_user_returned() {
+        let conn = establish_connection().unwrap();
+        let form = LoginForm {
+            email: "foo@bar.com".to_owned(),
+            password: "password".to_owned(),
+        };
+        let usr = form.user(&conn).await.unwrap();
+        assert_eq!(usr.email, "foo@bar.com".to_owned());
+    }
+
+    #[actix_web::main]
+    #[test]
+    async fn no_associated_user_returned() {
+        let conn = establish_connection().unwrap();
+        let form = LoginForm {
+            email: "doesnt@exist.com".to_owned(),
+            password: "password".to_owned(),
+        };
+        let usr = form.user(&conn).await;
+        assert!(usr.is_none());
+    }
+
+    #[test]
+    fn user_authenticated() {
+        let conn = establish_connection().unwrap();
+        let form = LoginForm {
+            email: "foo@bar.com".to_string(),
+            password: "password".to_string(),
+        };
+        let usr = form.authenticate(&conn);
+        assert!(usr.is_ok())
+    }
+
+    #[test]
+    fn password_validated() {
+        use crate::model::user::Role;
+        let form = SignupForm {
+            email: "cyobero@gmail.com".to_string(),
+            username: "cyobero".to_string(),
+            password1: "password123".to_string(),
+            password2: "password123".to_string(),
+            role: Role::Bookie,
+        };
+        let res = form.validate();
+        assert!(res.is_ok());
     }
 }
 
@@ -150,6 +202,7 @@ mod db_tests {
         use crate::schema::games::dsl::*;
         let conn = establish_connection().unwrap();
         let new = NewGame {
+            league: League::NBA,
             home: "BOS".to_string(),
             away: "GSW".to_string(),
             start: NaiveDate::from_ymd(2022, 06, 08).and_hms(17, 30, 0),
@@ -185,17 +238,52 @@ mod db_tests {
 
     #[test]
     fn user_queried() {
-        use crate::form::LoginForm;
-        use crate::model::user::User;
+        use crate::model::user::{User, UserQuery};
         let conn = establish_connection().unwrap();
         let res = User::query(
             &conn,
-            &LoginForm {
-                email: "foo@bar.com".to_string(),
-                password: "password".to_string(),
+            &UserQuery {
+                email: "foo@bar.com",
             },
         )
         .unwrap();
         assert_ne!(res.len(), 0);
+    }
+
+    #[test]
+    fn nba_games_retrieved() {
+        let conn = establish_connection().unwrap();
+
+        let games = Game::query(
+            &conn,
+            &GameQuery {
+                league: Some(League::NBA),
+            },
+        )
+        .unwrap();
+        assert_ne!(games.len(), 0);
+        assert_eq!(games[0].league, League::NBA);
+    }
+
+    #[test]
+    fn nfl_games_retrieved() {
+        let conn = establish_connection().unwrap();
+
+        let games = Game::query(
+            &conn,
+            &GameQuery {
+                league: Some(League::NFL),
+            },
+        )
+        .unwrap();
+        assert_ne!(games.len(), 0);
+        assert_eq!(games[0].league, League::NFL);
+    }
+
+    #[test]
+    fn all_games_retrieved_no_league_input() {
+        let conn = establish_connection().unwrap();
+        let games = Game::query(&conn, &GameQuery { league: None }).unwrap();
+        assert_ne!(games.len(), 0);
     }
 }

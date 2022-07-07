@@ -2,3 +2,4 @@
 DROP TABLE events;
 DROP TABLE game_results;
 DROP TABLE games;
+DROP TYPE league;

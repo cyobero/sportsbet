@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html>
     <head>
+        {{> styles}}
         <meta charset="utf-8">
+        <link rel="stylesheet" href="/static/css/style.css">
+
         <title>Events</title>
     </head>
     <body>
         {{#if events }}
-        <table id="open-games">
+        <table class="table" id="open-games">
             <thead>
                 <tr>
                     <th>ID</th>

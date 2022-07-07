@@ -9,6 +9,8 @@ use diesel_derive_enum::DbEnum;
 use serde::{Deserialize, Serialize};
 type DieselError = diesel::result::Error;
 
+pub trait Form {}
+
 #[derive(Clone, Copy, Debug, DbEnum, Deserialize, Serialize, PartialEq)]
 pub enum Role {
     Bookie,
@@ -52,11 +54,28 @@ pub struct AuthedUser {
     pub role: Role,
 }
 
+#[derive(Clone, Deserialize, Serialize)]
+pub struct UserQuery<'a> {
+    pub email: &'a str,
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                               //
 /////// Implementations ///////////////////////////////////////////////////////////////////////////
 //                                                                                               //
-//////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+impl Default for User {
+    fn default() -> User {
+        User {
+            id: -1,
+            email: String::new(),
+            username: String::new(),
+            password: String::new(),
+            role: Role::Punter,
+        }
+    }
+}
 
 impl Deletable for User {
     fn delete(&self, conn: &PgConnection) -> Result<User, DieselError> {
@@ -64,8 +83,8 @@ impl Deletable for User {
     }
 }
 
-impl Retrievable<LoginForm> for User {
-    fn query(conn: &PgConnection, data: &LoginForm) -> Result<Vec<User>, DieselError> {
+impl Retrievable<UserQuery<'_>> for User {
+    fn query(conn: &PgConnection, data: &UserQuery) -> Result<Vec<User>, DieselError> {
         users_dsl::users
             .filter(users_dsl::email.eq(&data.email))
             .get_results(conn)
