@@ -1,3 +1,4 @@
+pub mod session;
 pub mod user;
 
 use super::db::{Creatable, Deletable, Retrievable};

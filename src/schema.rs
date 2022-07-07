@@ -40,6 +40,18 @@ table! {
     use diesel::sql_types::*;
     use crate::exports::*;
 
+    sessions (id) {
+        id -> Int4,
+        user_id -> Int4,
+        login_date -> Timestamp,
+        logout_date -> Nullable<Timestamp>,
+    }
+}
+
+table! {
+    use diesel::sql_types::*;
+    use crate::exports::*;
+
     users (id) {
         id -> Int4,
         email -> Varchar,
@@ -51,10 +63,12 @@ table! {
 
 joinable!(events -> games (game_id));
 joinable!(game_results -> games (game_id));
+joinable!(sessions -> users (user_id));
 
 allow_tables_to_appear_in_same_query!(
     events,
     game_results,
     games,
+    sessions,
     users,
 );

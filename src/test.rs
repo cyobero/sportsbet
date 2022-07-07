@@ -96,6 +96,7 @@ mod form_tests {
 mod db_tests {
     use super::establish_connection;
     use crate::db::*;
+    use crate::model::user::*;
     use crate::model::*;
     use crate::schema::events::{self, dsl};
     use chrono::naive::{NaiveDate, NaiveDateTime};
@@ -286,5 +287,26 @@ mod db_tests {
         let conn = establish_connection().unwrap();
         let games = Game::query(&conn, &GameQuery { league: None }).unwrap();
         assert_ne!(games.len(), 0);
+    }
+
+    #[test]
+    fn session_created() {
+        use crate::model::session::*;
+        let conn = establish_connection().unwrap();
+        let usr = User::query(
+            &conn,
+            &UserQuery {
+                email: "foo@bar.com",
+                username: "",
+            },
+        )
+        .map(|usrs| usrs[0].clone())
+        .unwrap();
+        let new = NewSession {
+            user_id: usr.id,
+            logout_date: None,
+        };
+        let ses = new.create(&conn).unwrap();
+        assert_eq!(ses.user_id, usr.id);
     }
 }

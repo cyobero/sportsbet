@@ -31,7 +31,7 @@ pub struct NewUser {
 #[table_name = "users"]
 pub struct User {
     #[sql_type = "Integer"]
-    id: i32,
+    pub id: i32,
     #[sql_type = "Varchar"]
     pub email: String,
     #[sql_type = "Varchar"]
