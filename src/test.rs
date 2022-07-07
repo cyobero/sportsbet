@@ -308,5 +308,6 @@ mod db_tests {
         };
         let ses = new.create(&conn).unwrap();
         assert_eq!(ses.user_id, usr.id);
+        let _ = ses.delete(&conn);
     }
 }
