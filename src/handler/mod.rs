@@ -157,6 +157,7 @@ async fn post_event(
     })
 }
 
+/// Request handler for index page
 #[get("/")]
 async fn index(hb: web::Data<Handlebars<'_>>) -> impl Responder {
     let body = hb.render("index", &json!({})).unwrap();
