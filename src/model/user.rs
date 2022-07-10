@@ -1,5 +1,4 @@
 use crate::db::{Creatable, Deletable, Retrievable};
-use crate::form::LoginForm;
 use crate::model::session::NewSession;
 use crate::schema::users::{self, dsl as users_dsl};
 
@@ -8,10 +7,7 @@ use diesel::sql_types::{Integer, Varchar};
 use diesel::{sql_query, ExpressionMethods, Insertable, QueryDsl, Queryable, RunQueryDsl};
 use diesel_derive_enum::DbEnum;
 use serde::{Deserialize, Serialize};
-use std::io;
 type DieselError = diesel::result::Error;
-
-pub trait Form {}
 
 #[derive(Clone, Copy, Debug, DbEnum, Deserialize, Serialize, PartialEq)]
 pub enum Role {

@@ -1,4 +1,4 @@
-//! Module for proccessing HTTP requests
+//! Request handlers for user authentication
 use super::DbPool;
 use crate::db::Creatable;
 use crate::form::{LoginForm, SignupForm};
@@ -7,6 +7,7 @@ use handlebars::Handlebars;
 use actix_web::{get, post, web, HttpRequest, HttpResponse, Responder};
 use serde_json::json;
 
+/// Request handler for creating a new account from form data
 #[post("/signup")]
 async fn signup(
     pool: web::Data<DbPool>,
@@ -47,12 +48,14 @@ async fn signup(
     })
 }
 
+/// Retrieve signup form
 #[get("/signup")]
 async fn signup_form(hb: web::Data<Handlebars<'_>>, _req: HttpRequest) -> impl Responder {
     let body = hb.render("signup", &{}).unwrap();
     HttpResponse::Ok().body(body)
 }
 
+/// Request handler for logging a user in
 #[post("/login")]
 async fn login(
     pool: web::Data<DbPool>,
@@ -81,6 +84,7 @@ async fn login(
     })
 }
 
+/// Retrieve login form
 #[get("/login")]
 async fn login_form(_req: HttpRequest, hb: web::Data<Handlebars<'_>>) -> impl Responder {
     let body = hb.render("login", &{}).unwrap();

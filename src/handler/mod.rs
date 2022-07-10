@@ -1,3 +1,4 @@
+/// Request handlers for games and events
 pub mod user;
 
 use super::form::GameForm;

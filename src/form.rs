@@ -1,4 +1,4 @@
-//! A module for form andling
+//! Module for form handling
 
 use std::fmt;
 
@@ -109,6 +109,7 @@ impl SignupForm {
         }
     }
 
+    /// Authenticates signup form by checking database to see if email or username is available
     pub fn authenticate(self, conn: &PgConnection) -> Result<NewUser, AuthError> {
         let usr = User::query(
             conn,
