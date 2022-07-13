@@ -7,7 +7,6 @@ edition = "2021"
 
 [dependencies]
 actix-rt = "2.7.0"
-<<<<<<< HEAD
 actix-files = "0.4"
 actix-session = { version = "=0.6", features = ["cookie-session"] }
 actix-files = "0.4"
