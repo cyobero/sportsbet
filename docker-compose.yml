@@ -1,0 +1,22 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: password123
+    volumes:
+      - sportsbet_vol:/var/lib/postgres/data
+
+  web:
+    build: .
+    depends_on:
+      - db
+    ports:
+      - 8305:8305
+
+
+volumes:
+  sportsbet_vol:
