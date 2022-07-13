@@ -8,21 +8,14 @@ pub mod model;
 pub mod schema;
 pub mod test;
 
-<<<<<<< HEAD
 use actix_files::Files;
 use actix_web::{web, App, HttpServer};
-=======
-use handlebars::Handlebars;
 use handler::*;
 
-use actix_web::{web, App, HttpServer};
-
->>>>>>> 6ea255f (create event form template)
 use diesel::pg::PgConnection;
 use diesel::r2d2::{self, ConnectionManager};
 use dotenv::dotenv;
 use handlebars::Handlebars;
-use handler::*;
 
 use std::env;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
@@ -117,7 +110,6 @@ pub async fn main() -> std::io::Result<()> {
     handlebars
         .register_templates_directory(".html", "./static/templates")
         .unwrap();
-<<<<<<< HEAD
     let styles = r#"
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -125,8 +117,6 @@ pub async fn main() -> std::io::Result<()> {
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
     "#;
     handlebars.register_partial("styles", styles).unwrap();
-=======
->>>>>>> 6ea255f (create event form template)
     let handlebars_ref = web::Data::new(handlebars);
 
     let addrress = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), 8305);
@@ -136,7 +126,6 @@ pub async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(handlebars_ref.clone())
             .data(pool.clone())
-<<<<<<< HEAD
             .service(Files::new("/static", "./static"))
             .service(index)
             .service(get_events)
@@ -149,10 +138,8 @@ pub async fn main() -> std::io::Result<()> {
             .service(user::login)
             .service(user::signup_form)
             .service(user::signup)
-=======
             .service(get_events)
             .service(event_form)
->>>>>>> 6ea255f (create event form template)
     })
     .bind(addrress)?
     .run()

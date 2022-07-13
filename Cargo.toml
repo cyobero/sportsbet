@@ -9,7 +9,6 @@ edition = "2021"
 actix-rt = "2.7.0"
 actix-files = "0.4"
 actix-session = { version = "=0.6", features = ["cookie-session"] }
-actix-files = "0.4"
 actix-web = "3.3.2"
 async-trait = "*"
 chrono = { version = "0.4.9", features = ["serde"] }
