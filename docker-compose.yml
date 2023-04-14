@@ -3,10 +3,12 @@ version: "3.9"
 services:
   db:
     image: postgres
+    restart: always
     ports:
       - 5432:5432
     environment:
       POSTGRES_PASSWORD: password123
+      POSTGRES_DB: sportsbet_db
     volumes:
       - sportsbet_vol:/var/lib/postgres/data
 
@@ -15,7 +17,7 @@ services:
     depends_on:
       - db
     ports:
-      - 8305:8305
+      - 8008:8008
 
 
 volumes:

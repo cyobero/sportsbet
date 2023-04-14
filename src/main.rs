@@ -119,7 +119,7 @@ pub async fn main() -> std::io::Result<()> {
     handlebars.register_partial("styles", styles).unwrap();
     let handlebars_ref = web::Data::new(handlebars);
 
-    let addrress = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), 8305);
+    let addrress = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), 8008);
     println!("🚀 ⛽🌬️🌬️ Serving at {:?}", addrress);
 
     HttpServer::new(move || {
